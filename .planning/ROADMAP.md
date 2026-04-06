@@ -12,7 +12,7 @@ Four phases deliver a working internal license monitoring tool from scratch. Pha
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Infrastructure** - Project skeleton, Docker Compose, SQLite schema, .env config
+- [x] **Phase 1: Infrastructure** - Project skeleton, Docker Compose, SQLite schema, .env config (completed 2026-04-06)
 - [ ] **Phase 2: Dashboard** - Read-only main page with stats, expiring widget, color-coded license table
 - [ ] **Phase 3: License CRUD** - Add, edit, delete licenses via web forms; license detail page
 - [ ] **Phase 4: Notifications & Settings** - Telegram bot, daily scheduler, settings page, per-license thresholds
@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01: Initialize project structure — `app/`, `static/`, `templates/`, `Dockerfile`, `docker-compose.yml`, `requirements.txt`, `.env.example`, `.gitignore`
 - [x] 01-02: Implement database layer — SQLAlchemy models for `License` and `AppSettings`, engine config with WAL mode, `create_all()` on lifespan startup
-- [ ] 01-03: Wire FastAPI app skeleton — `main.py` with lifespan, health endpoint, base Jinja2 template, static file serving, placeholder index route
+- [x] 01-03: Wire FastAPI app skeleton — `main.py` with lifespan, health endpoint, base Jinja2 template, static file serving, placeholder index route
 
 ### Phase 2: Dashboard
 **Goal**: Users can see the full state of all licenses at a glance without needing to open any records
@@ -95,7 +95,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 0/3 | Not started | - |
+| 1. Infrastructure | 3/3 | Complete   | 2026-04-06 |
 | 2. Dashboard | 0/3 | Not started | - |
 | 3. License CRUD | 0/3 | Not started | - |
 | 4. Notifications & Settings | 0/4 | Not started | - |

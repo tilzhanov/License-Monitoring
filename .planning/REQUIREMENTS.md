@@ -41,7 +41,7 @@
 
 - [x] **INFRA-01**: Приложение запускается через `docker-compose up`
 - [x] **INFRA-02**: Конфигурация через `.env` файл: порт, секреты, параметры по умолчанию
-- [ ] **INFRA-03**: SQLite как хранилище данных (файл монтируется как volume)
+- [x] **INFRA-03**: SQLite как хранилище данных (файл монтируется как volume)
 - [ ] **INFRA-04**: Планировщик уведомлений запускается внутри Python-процесса (APScheduler)
 
 ## v2 Requirements
@@ -98,7 +98,7 @@
 | SETT-03 | Phase 4 | Pending |
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
-| INFRA-03 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 4 | Pending |
 
 **Coverage:**
