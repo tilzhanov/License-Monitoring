@@ -1,9 +1,12 @@
-from fastapi import APIRouter, Request
+from typing import Optional
+
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse
-from app.templates import templates
+
 from app.database import SessionDep
 from app.models import License
-from app.services.status import get_global_threshold, enrich_licenses
+from app.services.status import enrich_licenses, get_global_threshold
+from app.templates import templates
 
 router = APIRouter()
 
@@ -43,5 +46,48 @@ def index(request: Request, db: SessionDep):
             "licenses": sorted_licenses,
             "current_sort": "expiry_date",
             "current_order": "asc",
+        },
+    )
+
+
+@router.get("/licenses/table", response_class=HTMLResponse)
+def license_table(
+    request: Request,
+    db: SessionDep,
+    product: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    sort: str = Query("expiry_date"),
+    order: str = Query("asc"),
+):
+    """HTMX partial: returns filtered/sorted tbody rows for the license table."""
+    global_threshold = get_global_threshold(db)
+    query = db.query(License)
+
+    # Filter by product name -- case-insensitive LIKE
+    if product:
+        query = query.filter(License.product_name.ilike(f"%{product}%"))
+
+    licenses = query.all()
+    enriched = enrich_licenses(licenses, global_threshold)
+
+    # Filter by computed status
+    if status:
+        enriched = [e for e in enriched if e["status"] == status]
+
+    # Sort
+    sort_key_map = {
+        "expiry_date": lambda e: e["license"].expiry_date,
+        "product_name": lambda e: e["license"].product_name.lower(),
+    }
+    sort_fn = sort_key_map.get(sort, sort_key_map["expiry_date"])
+    enriched.sort(key=sort_fn, reverse=(order == "desc"))
+
+    return templates.TemplateResponse(
+        request=request,
+        name="partials/license_table.html",
+        context={
+            "licenses": enriched,
+            "current_sort": sort,
+            "current_order": order,
         },
     )

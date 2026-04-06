@@ -46,20 +46,41 @@
 
 {% if licenses %}
 <div class="filter-controls">
-  <input type="text" name="product" placeholder="Поиск по продукту...">
-  <select name="status">
+  <input type="text" name="product"
+         hx-get="/licenses/table"
+         hx-trigger="keyup changed delay:300ms"
+         hx-target="#license-tbody"
+         hx-include="[name='status'],[name='sort'],[name='order']"
+         placeholder="Поиск по продукту...">
+  <select name="status"
+          hx-get="/licenses/table"
+          hx-trigger="change"
+          hx-target="#license-tbody"
+          hx-include="[name='product'],[name='sort'],[name='order']">
     <option value="">Все статусы</option>
     <option value="active">Активна</option>
     <option value="warning">Скоро истекает</option>
     <option value="expired">Истекла</option>
   </select>
+  <input type="hidden" name="sort" value="{{ current_sort }}">
+  <input type="hidden" name="order" value="{{ current_order }}">
 </div>
 
 <table class="license-table">
   <thead>
     <tr>
-      <th>Продукт</th>
-      <th>Дата истечения</th>
+      <th hx-get="/licenses/table?sort=product_name&order={% if current_sort == 'product_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
+          hx-target="#license-tbody"
+          hx-include="[name='product'],[name='status']"
+          style="cursor:pointer">
+        Продукт {% if current_sort == 'product_name' %}{{ '&#9650;'|safe if current_order == 'asc' else '&#9660;'|safe }}{% endif %}
+      </th>
+      <th hx-get="/licenses/table?sort=expiry_date&order={% if current_sort == 'expiry_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
+          hx-target="#license-tbody"
+          hx-include="[name='product'],[name='status']"
+          style="cursor:pointer">
+        Дата истечения {% if current_sort == 'expiry_date' %}{{ '&#9650;'|safe if current_order == 'asc' else '&#9660;'|safe }}{% endif %}
+      </th>
       <th>Осталось дней</th>
       <th>Статус</th>
       <th>Ответственный</th>
