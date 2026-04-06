@@ -49,9 +49,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Implement status computation logic — `days_until_expiry()` helper, status enum (active/warning/expired), threshold-aware classification
-- [ ] 02-02: Build dashboard route and template — stats counters, expiring-soon widget, full license table with color classes, HTMX-powered filter/sort controls
-- [ ] 02-03: Add CSS styling — color-coded row classes, stat card layout, responsive table, navigation bar linking to all pages
+- [ ] 02-01-PLAN.md — Status computation service with unit tests (days_until_expiry, get_license_status, threshold fallback chain, enrich_licenses)
+- [ ] 02-02-PLAN.md — Dashboard route, templates, and CSS (stats counters, expiring-soon widget, color-coded license table, responsive styling)
+- [ ] 02-03-PLAN.md — HTMX filter/sort partial endpoint and integration tests (product/status filter, column sort, full test coverage)
 **UI hint**: yes
 
 ### Phase 3: License CRUD
