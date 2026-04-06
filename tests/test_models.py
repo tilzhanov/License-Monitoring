@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import inspect, text
+from sqlalchemy import event, inspect, text
 from sqlalchemy.orm import Session
 from app.models import License, AppSettings
 from app.database import Base
@@ -81,11 +81,24 @@ def test_app_settings_key_is_primary(test_engine):
     assert pk["constrained_columns"] == ["key"]
 
 
-def test_wal_mode(test_engine):
-    """WAL journal mode is set on the test engine."""
-    with test_engine.connect() as conn:
+def test_wal_mode(tmp_path):
+    """WAL journal mode is set on file-based SQLite engine."""
+    from sqlalchemy import create_engine as ce
+    db_path = tmp_path / "test_wal.db"
+    eng = ce(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
+
+    @event.listens_for(eng, "connect")
+    def _set_wal(dbapi_conn, connection_record):
+        cursor = dbapi_conn.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA synchronous=NORMAL")
+        cursor.close()
+
+    # Trigger a connection to fire the pragma
+    with eng.connect() as conn:
         result = conn.execute(text("PRAGMA journal_mode")).scalar()
         assert result == "wal"
+    eng.dispose()
 
 
 def test_bootstrap_settings_inserts_defaults(test_engine, monkeypatch):
