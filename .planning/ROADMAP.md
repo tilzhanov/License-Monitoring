@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Initialize project structure — `app/`, `static/`, `templates/`, `Dockerfile`, `docker-compose.yml`, `requirements.txt`, `.env.example`, `.gitignore`
+- [x] 01-01: Initialize project structure — `app/`, `static/`, `templates/`, `Dockerfile`, `docker-compose.yml`, `requirements.txt`, `.env.example`, `.gitignore`
 - [ ] 01-02: Implement database layer — SQLAlchemy models for `License` and `AppSettings`, engine config with WAL mode, `create_all()` on lifespan startup
 - [ ] 01-03: Wire FastAPI app skeleton — `main.py` with lifespan, health endpoint, base Jinja2 template, static file serving, placeholder index route
 

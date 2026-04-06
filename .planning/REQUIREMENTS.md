@@ -39,8 +39,8 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Приложение запускается через `docker-compose up`
-- [ ] **INFRA-02**: Конфигурация через `.env` файл: порт, секреты, параметры по умолчанию
+- [x] **INFRA-01**: Приложение запускается через `docker-compose up`
+- [x] **INFRA-02**: Конфигурация через `.env` файл: порт, секреты, параметры по умолчанию
 - [ ] **INFRA-03**: SQLite как хранилище данных (файл монтируется как volume)
 - [ ] **INFRA-04**: Планировщик уведомлений запускается внутри Python-процесса (APScheduler)
 
@@ -96,8 +96,8 @@
 | SETT-01 | Phase 4 | Pending |
 | SETT-02 | Phase 4 | Pending |
 | SETT-03 | Phase 4 | Pending |
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Pending |
 | INFRA-04 | Phase 4 | Pending |
 
