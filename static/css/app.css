@@ -4,3 +4,130 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 nav { background: #1a1a2e; color: #fff; padding: 1rem 2rem; }
 nav a { color: #fff; text-decoration: none; font-weight: bold; font-size: 1.2rem; }
 main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+nav .nav-brand { font-size: 1.2rem; font-weight: bold; }
+nav { display: flex; align-items: center; justify-content: space-between; }
+.nav-links a { color: #fff; text-decoration: none; margin-left: 1.5rem; font-size: 0.95rem; }
+.nav-links a:hover { text-decoration: underline; }
+
+/* === Stats Cards (D-05) === */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.stat-card .count {
+    font-size: 2rem;
+    font-weight: bold;
+}
+.stat-card .label {
+    color: #666;
+    margin-top: 0.5rem;
+}
+.stat-card.total .count { color: #1565c0; }
+.stat-card.warning .count { color: #f57f17; }
+.stat-card.expired .count { color: #d32f2f; }
+
+/* === Expiring Soon Widget === */
+.expiring-widget {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.expiring-widget h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: #f57f17;
+}
+.expiring-widget ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.expiring-widget li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.expiring-widget li:last-child { border-bottom: none; }
+.expiring-widget .product-name { font-weight: 500; }
+.expiring-widget .days-badge {
+    background: #fff3e0;
+    color: #e65100;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* === License Table === */
+.license-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.license-table th {
+    background: #1a1a2e;
+    color: white;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 500;
+}
+.license-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+/* Status row colors (D-07) */
+.status-expired { background-color: #fce4e4; }
+.status-expired:hover { background-color: #f8cccc; }
+.status-warning { background-color: #fff8e1; }
+.status-warning:hover { background-color: #ffecb3; }
+.status-active { background-color: #e8f5e9; }
+.status-active:hover { background-color: #c8e6c9; }
+
+/* === Filter Controls === */
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+.filter-controls input,
+.filter-controls select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+.filter-controls input { flex: 1; min-width: 200px; }
+
+/* === Empty State === */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #999;
+    font-size: 1.1rem;
+}
+
+/* === Responsive (mobile) === */
+@media (max-width: 768px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .license-table { font-size: 0.85rem; }
+    .license-table th, .license-table td { padding: 0.5rem; }
+    .filter-controls { flex-direction: column; }
+}
