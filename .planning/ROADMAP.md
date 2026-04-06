@@ -13,7 +13,7 @@ Four phases deliver a working internal license monitoring tool from scratch. Pha
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Infrastructure** - Project skeleton, Docker Compose, SQLite schema, .env config (completed 2026-04-06)
-- [ ] **Phase 2: Dashboard** - Read-only main page with stats, expiring widget, color-coded license table
+- [x] **Phase 2: Dashboard** - Read-only main page with stats, expiring widget, color-coded license table (completed 2026-04-06)
 - [ ] **Phase 3: License CRUD** - Add, edit, delete licenses via web forms; license detail page
 - [ ] **Phase 4: Notifications & Settings** - Telegram bot, daily scheduler, settings page, per-license thresholds
 
@@ -51,7 +51,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Status computation service with unit tests (days_until_expiry, get_license_status, threshold fallback chain, enrich_licenses)
 - [x] 02-02-PLAN.md — Dashboard route, templates, and CSS (stats counters, expiring-soon widget, color-coded license table, responsive styling)
-- [ ] 02-03-PLAN.md — HTMX filter/sort partial endpoint and integration tests (product/status filter, column sort, full test coverage)
+- [x] 02-03-PLAN.md — HTMX filter/sort partial endpoint and integration tests (product/status filter, column sort, full test coverage)
 **UI hint**: yes
 
 ### Phase 3: License CRUD
@@ -96,6 +96,6 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete   | 2026-04-06 |
-| 2. Dashboard | 0/3 | Not started | - |
+| 2. Dashboard | 3/3 | Complete | 2026-04-06 |
 | 3. License CRUD | 0/3 | Not started | - |
 | 4. Notifications & Settings | 0/4 | Not started | - |
