@@ -12,7 +12,8 @@
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Деплой через Docker Compose, конфигурация через .env файл — *Validated in Phase 1: Infrastructure*
+- [x] Поля лицензии: продукт/система, дата покупки, дата истечения, ответственный, стоимость, комментарий — *Validated in Phase 1: Infrastructure (schema defined)*
 
 ### Active
 
@@ -79,4 +80,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-03 after initialization*
+*Last updated: 2026-04-06 after Phase 1 completion*
