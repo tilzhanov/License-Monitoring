@@ -49,8 +49,8 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Status computation service with unit tests (days_until_expiry, get_license_status, threshold fallback chain, enrich_licenses)
-- [ ] 02-02-PLAN.md — Dashboard route, templates, and CSS (stats counters, expiring-soon widget, color-coded license table, responsive styling)
+- [x] 02-01-PLAN.md — Status computation service with unit tests (days_until_expiry, get_license_status, threshold fallback chain, enrich_licenses)
+- [x] 02-02-PLAN.md — Dashboard route, templates, and CSS (stats counters, expiring-soon widget, color-coded license table, responsive styling)
 - [ ] 02-03-PLAN.md — HTMX filter/sort partial endpoint and integration tests (product/status filter, column sort, full test coverage)
 **UI hint**: yes
 
