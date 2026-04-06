@@ -1,0 +1,13 @@
+{% for item in licenses %}
+<tr class="{{ item.status_class }}">
+  <td>{{ item.license.product_name }}</td>
+  <td>{{ item.license.expiry_date.strftime('%d.%m.%Y') }}</td>
+  <td>{{ item.days_remaining }}</td>
+  <td>
+    {% if item.status == 'expired' %}Истекла
+    {% elif item.status == 'warning' %}Скоро истекает
+    {% else %}Активна{% endif %}
+  </td>
+  <td>{{ item.license.responsible or '\u2014' }}</td>
+</tr>
+{% endfor %}

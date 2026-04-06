@@ -3,6 +3,73 @@
 {% block title %}License Monitor - Dashboard{% endblock %}
 
 {% block content %}
-<h1>License Monitor</h1>
-<p>Dashboard placeholder. License management coming soon.</p>
+<h1>Мониторинг лицензий</h1>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+  <div class="stat-card total">
+    <div class="count">{{ total }}</div>
+    <div class="label">Всего лицензий</div>
+  </div>
+  <div class="stat-card warning">
+    <div class="count">{{ expiring }}</div>
+    <div class="label">Скоро истекает</div>
+  </div>
+  <div class="stat-card expired">
+    <div class="count">{{ expired }}</div>
+    <div class="label">Истекло</div>
+  </div>
+</div>
+
+<!-- Expiring Soon Widget -->
+<section class="expiring-widget">
+  <h2>Скоро истекающие</h2>
+  {% if expiring_soon %}
+  <ul>
+    {% for item in expiring_soon %}
+    <li>
+      <span class="product-name">{{ item.license.product_name }}</span>
+      <span>
+        {{ item.license.expiry_date.strftime('%d.%m.%Y') }}
+        <span class="days-badge">{{ item.days_remaining }} дн.</span>
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>Нет лицензий, требующих внимания</p>
+  {% endif %}
+</section>
+
+<!-- License Table -->
+<h2>Все лицензии</h2>
+
+{% if licenses %}
+<div class="filter-controls">
+  <input type="text" name="product" placeholder="Поиск по продукту...">
+  <select name="status">
+    <option value="">Все статусы</option>
+    <option value="active">Активна</option>
+    <option value="warning">Скоро истекает</option>
+    <option value="expired">Истекла</option>
+  </select>
+</div>
+
+<table class="license-table">
+  <thead>
+    <tr>
+      <th>Продукт</th>
+      <th>Дата истечения</th>
+      <th>Осталось дней</th>
+      <th>Статус</th>
+      <th>Ответственный</th>
+    </tr>
+  </thead>
+  <tbody id="license-tbody">
+    {% include "partials/license_table.html" %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty-state">Лицензии пока не добавлены</p>
+{% endif %}
 {% endblock %}

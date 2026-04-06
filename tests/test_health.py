@@ -3,11 +3,17 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import StaticPool
 from app.database import Base, get_session
 from app.models import License, AppSettings  # noqa: F401 -- register models
 
 # Create a test engine that overrides the production engine
-test_engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+# StaticPool ensures all connections share the same in-memory database
+test_engine = create_engine(
+    "sqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 
 
 @event.listens_for(test_engine, "connect")
