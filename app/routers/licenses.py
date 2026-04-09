@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 from fastapi import APIRouter, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -9,6 +10,41 @@ from app.services.status import days_until_expiry, get_license_status, get_globa
 from app.templates import templates
 
 router = APIRouter(tags=["licenses"])
+
+
+def _validate_license_form(
+    product_name: str,
+    purchase_date_str: str,
+    expiry_date_str: str,
+) -> tuple[dict[str, str], Optional[date], Optional[date]]:
+    """Validate license form fields. Returns (errors, parsed_purchase_date, parsed_expiry_date)."""
+    errors: dict[str, str] = {}
+    parsed_purchase: Optional[date] = None
+    parsed_expiry: Optional[date] = None
+
+    if not product_name.strip():
+        errors["product_name"] = "Укажите название продукта"
+
+    if not purchase_date_str.strip():
+        errors["purchase_date"] = "Укажите дату покупки"
+    else:
+        try:
+            parsed_purchase = date.fromisoformat(purchase_date_str)
+        except ValueError:
+            errors["purchase_date"] = "Укажите дату покупки"
+
+    if not expiry_date_str.strip():
+        errors["expiry_date"] = "Укажите дату истечения"
+    else:
+        try:
+            parsed_expiry = date.fromisoformat(expiry_date_str)
+        except ValueError:
+            errors["expiry_date"] = "Укажите дату истечения"
+
+    if parsed_purchase and parsed_expiry and parsed_expiry < parsed_purchase:
+        errors["expiry_date"] = "Дата истечения не может быть раньше даты покупки"
+
+    return errors, parsed_purchase, parsed_expiry
 
 
 @router.get("/licenses/new", response_class=HTMLResponse)
@@ -65,15 +101,19 @@ def create_license(
     cost: str = Form(""),
     comment: str = Form(""),
 ):
-    errors = {}
-    if not product_name.strip():
-        errors["product_name"] = "Укажите название продукта"
-    if not purchase_date.strip():
-        errors["purchase_date"] = "Укажите дату покупки"
-    if not expiry_date.strip():
-        errors["expiry_date"] = "Укажите дату истечения"
+    errors, parsed_purchase, parsed_expiry = _validate_license_form(
+        product_name, purchase_date, expiry_date,
+    )
 
     if errors:
+        form_data = {
+            "product_name": product_name,
+            "purchase_date": purchase_date,
+            "expiry_date": expiry_date,
+            "responsible": responsible,
+            "cost": cost,
+            "comment": comment,
+        }
         return templates.TemplateResponse(
             request=request,
             name="license_form.html",
@@ -84,21 +124,14 @@ def create_license(
                 "submit_text": "Добавить лицензию",
                 "license": None,
                 "errors": errors,
-                "form_data": {
-                    "product_name": product_name,
-                    "purchase_date": purchase_date,
-                    "expiry_date": expiry_date,
-                    "responsible": responsible,
-                    "cost": cost,
-                    "comment": comment,
-                },
+                "form_data": form_data,
             },
         )
 
     license_obj = License(
         product_name=product_name.strip(),
-        purchase_date=date.fromisoformat(purchase_date),
-        expiry_date=date.fromisoformat(expiry_date),
+        purchase_date=parsed_purchase,
+        expiry_date=parsed_expiry,
         responsible=responsible.strip() or None,
         cost=cost.strip() or None,
         comment=comment.strip() or None,
@@ -145,15 +178,19 @@ def update_license(
     if not license_obj:
         raise HTTPException(status_code=404, detail="License not found")
 
-    errors = {}
-    if not product_name.strip():
-        errors["product_name"] = "Укажите название продукта"
-    if not purchase_date.strip():
-        errors["purchase_date"] = "Укажите дату покупки"
-    if not expiry_date.strip():
-        errors["expiry_date"] = "Укажите дату истечения"
+    errors, parsed_purchase, parsed_expiry = _validate_license_form(
+        product_name, purchase_date, expiry_date,
+    )
 
     if errors:
+        form_data = {
+            "product_name": product_name,
+            "purchase_date": purchase_date,
+            "expiry_date": expiry_date,
+            "responsible": responsible,
+            "cost": cost,
+            "comment": comment,
+        }
         return templates.TemplateResponse(
             request=request,
             name="license_form.html",
@@ -164,20 +201,13 @@ def update_license(
                 "submit_text": "Сохранить лицензию",
                 "license": license_obj,
                 "errors": errors,
-                "form_data": {
-                    "product_name": product_name,
-                    "purchase_date": purchase_date,
-                    "expiry_date": expiry_date,
-                    "responsible": responsible,
-                    "cost": cost,
-                    "comment": comment,
-                },
+                "form_data": form_data,
             },
         )
 
     license_obj.product_name = product_name.strip()
-    license_obj.purchase_date = date.fromisoformat(purchase_date)
-    license_obj.expiry_date = date.fromisoformat(expiry_date)
+    license_obj.purchase_date = parsed_purchase
+    license_obj.expiry_date = parsed_expiry
     license_obj.responsible = responsible.strip() or None
     license_obj.cost = cost.strip() or None
     license_obj.comment = comment.strip() or None
