@@ -18,10 +18,10 @@
 - [x] Таблица лицензий с фильтрацией и сортировкой — *Validated in Phase 2: Dashboard*
 - [x] Цветовая подсветка строк по статусу: красный (истекло / критично), жёлтый (скоро), зелёный (активно) — *Validated in Phase 2: Dashboard*
 - [x] Виджет «Скоро истекающие» на главной странице — *Validated in Phase 2: Dashboard*
+- [x] CRUD лицензий через веб-интерфейс (добавить / редактировать / удалить) — *Validated in Phase 3: License CRUD*
+- [x] Детальная страница лицензии — *Validated in Phase 3: License CRUD*
 
 ### Active
-- [ ] CRUD лицензий через веб-интерфейс (добавить / редактировать / удалить)
-- [ ] Поля лицензии: продукт/система, дата покупки, дата истечения, ответственный, стоимость, комментарий
 - [ ] Telegram-уведомления: один бот → один чат/группа
 - [ ] Глобальный порог уведомлений (например, за 30/60/90 дней) + возможность переопределить на уровне конкретной лицензии
 - [ ] Расписание: уведомления проверяются и отправляются автоматически (cron/scheduler)
@@ -79,4 +79,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-06 after Phase 1 completion*
+*Last updated: 2026-04-09 after Phase 3 completion*
