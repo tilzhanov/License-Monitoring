@@ -1,6 +1,6 @@
 {% for item in licenses %}
 <tr class="{{ item.status_class }}">
-  <td>{{ item.license.product_name }}</td>
+  <td><a href="/licenses/{{ item.license.id }}">{{ item.license.product_name }}</a></td>
   <td>{{ item.license.expiry_date.strftime('%d.%m.%Y') }}</td>
   <td>{{ item.days_remaining }}</td>
   <td>
@@ -9,5 +9,13 @@
     {% else %}Активна{% endif %}
   </td>
   <td>{{ item.license.responsible or '\u2014' }}</td>
+  <td class="actions-cell">
+    <a href="/licenses/{{ item.license.id }}/edit" class="action-link action-edit">Изменить</a>
+    <button hx-delete="/licenses/{{ item.license.id }}"
+            hx-confirm="Удалить лицензию «{{ item.license.product_name }}»? Это действие необратимо."
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+            class="action-btn action-delete">Удалить</button>
+  </td>
 </tr>
 {% endfor %}
