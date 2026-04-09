@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Лицензия не найдена — Мониторинг лицензий{% endblock %}
+{% block title %}{{ title if title else "Страница не найдена" }} — License Monitor{% endblock %}
 
 {% block content %}
 <div class="not-found">
-  <h1>Лицензия не найдена</h1>
-  <p>Запрошенная лицензия не существует или была удалена.</p>
-  <a href="/">Вернуться на дашборд</a>
+  <svg class="icon icon-large" aria-hidden="true"><use href="#icon-x-circle"/></svg>
+  <h1>{{ title if title else "Страница не найдена" }}</h1>
+  <p>Запрошенный ресурс не существует или был удалён.</p>
+  <a href="/" class="btn btn-secondary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+    Вернуться на дашборд
+  </a>
 </div>
 {% endblock %}

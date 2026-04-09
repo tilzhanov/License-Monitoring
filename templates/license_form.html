@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}{{ title }} - License Monitor{% endblock %}
+{% block title %}{{ title }} — License Monitor{% endblock %}
 
 {% block content %}
 {% set errors = errors or {} %}
 {% set form_data = form_data or None %}
 <div class="form-container">
-  <h1 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 24px;">{{ title }}</h1>
+  <h1>{{ title }}</h1>
   <div class="form-card">
     <form method="post" action="{{ action_url }}">
 
-      <div class="form-group">
+      <div class="form-group required">
         <label for="product_name">Продукт / Система</label>
         <input type="text" id="product_name" name="product_name"
                value="{{ form_data.get('product_name', '') if form_data else (license.product_name if license else '') }}"
@@ -19,7 +19,10 @@
                required
                class="{{ 'input-error' if errors.get('product_name') else '' }}">
         {% if errors.get('product_name') %}
-        <span class="field-error">{{ errors['product_name'] }}</span>
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['product_name'] }}
+        </span>
         {% endif %}
       </div>
 
@@ -29,17 +32,23 @@
                value="{{ form_data.get('purchase_date', '') if form_data else (license.purchase_date.isoformat() if license else '') }}"
                class="{{ 'input-error' if errors.get('purchase_date') else '' }}">
         {% if errors.get('purchase_date') %}
-        <span class="field-error">{{ errors['purchase_date'] }}</span>
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['purchase_date'] }}
+        </span>
         {% endif %}
       </div>
 
-      <div class="form-group">
+      <div class="form-group required">
         <label for="expiry_date">Дата истечения</label>
         <input type="date" id="expiry_date" name="expiry_date"
                value="{{ form_data.get('expiry_date', '') if form_data else (license.expiry_date.isoformat() if license else '') }}"
                class="{{ 'input-error' if errors.get('expiry_date') else '' }}">
         {% if errors.get('expiry_date') %}
-        <span class="field-error">{{ errors['expiry_date'] }}</span>
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['expiry_date'] }}
+        </span>
         {% endif %}
       </div>
 
@@ -65,7 +74,7 @@
 
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
-        <a href="/" class="btn btn-secondary">Вернуться к списку</a>
+        <a href="/" class="btn btn-secondary">Отменить изменения</a>
       </div>
 
     </form>

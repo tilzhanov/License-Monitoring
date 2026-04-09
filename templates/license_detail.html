@@ -1,19 +1,21 @@
 {% extends "base.html" %}
+{% from "partials/_macros.html" import status_badge %}
 
-{% block title %}{{ license.product_name }} — Мониторинг лицензий{% endblock %}
+{% block title %}{{ license.product_name }} — License Monitor{% endblock %}
 
 {% block content %}
 <div class="detail-container">
   <div class="breadcrumb">
-    <a href="/">Дашборд</a> &gt; {{ license.product_name }}
+    <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+    <a href="/">Дашборд</a>
+    <span>/</span>
+    <span>{{ license.product_name }}</span>
   </div>
 
   <div class="detail-card">
     <div class="detail-header">
       <h1>{{ license.product_name }}</h1>
-      <span class="status-badge status-badge-{{ status }}">
-        {% if status == 'active' %}Активна{% elif status == 'warning' %}Скоро истекает{% else %}Истекла{% endif %}
-      </span>
+      {{ status_badge(status) }}
     </div>
 
     <div class="detail-fields">
@@ -33,10 +35,10 @@
       <span class="detail-value">{{ license.purchase_date.strftime('%d.%m.%Y') }}</span>
 
       <span class="detail-label">Ответственный</span>
-      <span class="detail-value">{{ license.responsible or '---' }}</span>
+      <span class="detail-value">{{ license.responsible or '—' }}</span>
 
       <span class="detail-label">Стоимость</span>
-      <span class="detail-value">{{ license.cost or '---' }}</span>
+      <span class="detail-value">{{ license.cost or '—' }}</span>
     </div>
 
     {% if license.comment %}
@@ -47,14 +49,20 @@
     {% else %}
     <div class="detail-comment">
       <span class="detail-label">Комментарий</span>
-      <p>---</p>
+      <p>—</p>
     </div>
     {% endif %}
   </div>
 
   <div class="detail-actions">
-    <a href="/licenses/{{ license.id }}/edit" class="btn btn-primary">Изменить</a>
-    <a href="/" class="btn btn-secondary">Назад к дашборду</a>
+    <a href="/licenses/{{ license.id }}/edit" class="btn btn-primary">
+      <svg class="icon" aria-hidden="true"><use href="#icon-pencil"/></svg>
+      Изменить лицензию
+    </a>
+    <a href="/" class="btn btn-secondary">
+      <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+      Вернуться к дашборду
+    </a>
   </div>
 </div>
 {% endblock %}
