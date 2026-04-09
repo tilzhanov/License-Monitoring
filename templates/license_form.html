@@ -3,6 +3,8 @@
 {% block title %}{{ title }} - License Monitor{% endblock %}
 
 {% block content %}
+{% set errors = errors or {} %}
+{% set form_data = form_data or None %}
 <div class="form-container">
   <h1 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 24px;">{{ title }}</h1>
   <div class="form-card">
