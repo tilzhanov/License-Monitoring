@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-last_updated: "2026-04-09T06:25:50.032Z"
+status: Executing Phase 03.1
+last_updated: "2026-04-09T10:32:59.982Z"
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 13
+  completed_plans: 10
 ---
 
 # Project State
@@ -18,7 +18,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Никогда не пропустить истечение лицензии — Telegram-уведомление приходит заранее
-**Current focus:** Phase 03 — license-crud
+**Current focus:** Phase 03.1 — ui-polish
 
 ## Current Status
 
@@ -31,8 +31,15 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 |-------|--------|
 | Phase 1 — Infrastructure | [##########] 3/3 plans complete |
 | Phase 2 — Dashboard | [##########] 3/3 plans complete |
-| Phase 3 — License CRUD | Not started |
+| Phase 3 — License CRUD | [##########] 3/3 plans complete |
+| Phase 03.1 — UI Polish (INSERTED) | [##░░░░░░░░] 1/4 plans complete |
 | Phase 4 — Notifications & Settings | Not started |
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 03.1 inserted after Phase 3: UI Polish — visual redesign with ui-ux-pro-max for data-first dashboard style (URGENT — raw browser-default UI discovered after Phase 3 completion)
 
 ## Decisions
 
@@ -48,11 +55,12 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 - [Phase 02]: Integration tests use per-fixture dependency override with restore to avoid cross-module conflicts
 - [Phase 03]: Detail endpoint placed after /licenses/new to avoid FastAPI route conflict
 - [Phase 03]: 404 returns TemplateResponse with status_code=404 for user-friendly HTML page
+- [Phase 03.1-ui-polish]: Token-driven CSS design system with :root variables — no preprocessor, no @import; Lucide icon sprite via <symbol>+<use>; status row bar via inset box-shadow (not pseudo-elements); 12px removed from spacing scale (strict 8-point grid)
 
 ## Last Action
 
-2026-04-06 — Completed Plan 02-03 (Filters & Sorting). Added HTMX-powered filter/sort on license table with GET /licenses/table partial endpoint. 14 new integration tests covering DASH-01 through DASH-04. All 49 tests pass. Phase 02 complete.
+2026-04-09 — Completed Plan 03.1-01 (Design System Foundation). Rewrote static/css/app.css as 480-line token-driven system (slate ramp, accent, status, spacing, typography, radius, shadow). Added Google Fonts (Inter + JetBrains Mono), skip-link + main#main, Lucide icon sprite (12 symbols), status_badge Jinja macro. Scaffolded tests/test_ui_polish.py smoke suite (9 tests). Registered UI-01..UI-18 in REQUIREMENTS.md. Full suite 71/71 green, zero Phase 2/3 regressions.
 
 ## Next Action
 
-Transition to Phase 03 (License CRUD) or execute next milestone phase.
+Execute Plan 03.1-02 (dashboard polish) — consume new tokens + sprite + status_badge macro in index.html and partials/license_table.html.
