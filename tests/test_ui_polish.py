@@ -357,3 +357,83 @@ def test_404_dynamic_title():
 
 def test_404_no_inline_styles():
     assert "style=" not in _404()
+
+
+# ---------- Plan 03.1-04: HTMX polish, a11y, requirement coverage assertions ----------
+
+REQS = ROOT / ".planning" / "REQUIREMENTS.md"
+
+
+def test_ui16_htmx_request_indicators():
+    css = _css()
+    assert "#license-tbody.htmx-request" in css
+    assert "opacity: 0.6" in css
+    assert "pointer-events: none" in css
+    assert "#stats-section.htmx-request" in css
+    assert "@keyframes fadeIn" in css
+    assert "animation: fadeIn" in css
+
+
+def test_ui17_skip_link_styled():
+    css = _css()
+    assert ".skip-link" in css
+    # Hidden state (off-screen top) + visible on focus
+    assert "top: -40px" in css or "top:-40px" in css
+    assert ".skip-link:focus" in css
+
+
+def test_ui17_universal_focus_visible():
+    css = _css()
+    # Global rule + button-specific reinforcement
+    assert ":focus-visible {" in css or ":focus-visible{" in css
+    assert "outline: 2px solid var(--accent-600)" in css
+    assert "box-shadow: var(--shadow-focus)" in css
+
+
+def test_ui17_reduced_motion_disables_transitions():
+    css = _css()
+    assert "@media (prefers-reduced-motion: reduce)" in css
+    assert "transition-duration: 0.01ms" in css
+    assert "animation-duration: 0.01ms" in css
+
+
+def test_ui18_requirement_coverage():
+    """Every UI-01..UI-18 ID must be registered in REQUIREMENTS.md."""
+    content = REQS.read_text(encoding="utf-8")
+    for n in range(1, 19):
+        tag = f"UI-{n:02d}"
+        assert tag in content, f"{tag} missing from REQUIREMENTS.md"
+    # Also present in Traceability table
+    assert "UI-18" in content
+
+
+def test_ui18_all_templates_free_of_inline_styles():
+    """RESEARCH Pitfall 6 -- zero inline styles across templates/."""
+    for path in ROOT.joinpath("templates").rglob("*.html"):
+        body = path.read_text(encoding="utf-8")
+        assert "style=" not in body, f"inline style found in {path.relative_to(ROOT)}"
+
+
+def test_ui18_htmx_attr_preservation():
+    """Confirm every HTMX attr from RESEARCH Test Contract Inventory is still present."""
+    idx = (ROOT / "templates" / "index.html").read_text(encoding="utf-8")
+    partial = (ROOT / "templates" / "partials" / "license_table.html").read_text(encoding="utf-8")
+    for attr in [
+        'hx-get="/"',
+        'hx-trigger="license-changed from:body"',
+        'hx-target="#stats-section"',
+        'hx-select="#stats-section"',
+        'hx-swap="outerHTML"',
+        'hx-get="/licenses/table"',
+        'hx-target="#license-tbody"',
+        'hx-trigger="keyup changed delay:300ms"',
+        'hx-trigger="change"',
+    ]:
+        assert attr in idx, f"index.html missing {attr}"
+    for attr in [
+        'hx-delete="/licenses/',
+        'hx-confirm="Удалить лицензию',
+        'hx-target="closest tr"',
+        'hx-swap="outerHTML"',
+    ]:
+        assert attr in partial, f"license_table.html missing {attr}"

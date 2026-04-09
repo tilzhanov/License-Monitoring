@@ -66,6 +66,7 @@ h1 { font-size: var(--text-xl); font-weight: var(--fw-semibold); line-height: va
 h2 { font-size: var(--text-lg); font-weight: var(--fw-semibold); }
 p { margin: 0; }
 .icon { width: 16px; height: 16px; display: inline-block; vertical-align: middle; flex-shrink: 0; }
+.svg-sprite-hidden { display: none; }
 
 /* === Skip link === */
 .skip-link {
