@@ -1,58 +1,75 @@
 {% extends "base.html" %}
+{% from "partials/_macros.html" import status_badge %}
 
-{% block title %}License Monitor - Dashboard{% endblock %}
+{% block title %}License Monitor — Дашборд{% endblock %}
 
 {% block content %}
 <h1>Мониторинг лицензий</h1>
 
-<!-- Stats Cards -->
+{# Stats cards — label first, then count (spec §Component 3). Class strings
+   "stat-card total", "stat-card warning", "stat-card expired" are pinned by
+   tests/test_dashboard.py lines 115–116 — do not rename. #}
 <div id="stats-section" class="stats-grid"
      hx-get="/" hx-trigger="license-changed from:body" hx-target="#stats-section" hx-select="#stats-section" hx-swap="outerHTML">
   <div class="stat-card total">
+    <div class="label">
+      <svg class="icon" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
+      Всего лицензий
+    </div>
     <div class="count">{{ total }}</div>
-    <div class="label">Всего лицензий</div>
   </div>
   <div class="stat-card warning">
+    <div class="label">
+      <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+      Скоро истекает
+    </div>
     <div class="count">{{ expiring }}</div>
-    <div class="label">Скоро истекает</div>
   </div>
   <div class="stat-card expired">
+    <div class="label">
+      <svg class="icon" aria-hidden="true"><use href="#icon-x-circle"/></svg>
+      Истекло
+    </div>
     <div class="count">{{ expired }}</div>
-    <div class="label">Истекло</div>
   </div>
 </div>
 
-<!-- Expiring Soon Widget -->
+{# Expiring soon widget — class "expiring-widget" pinned by test_dashboard.py:124 #}
 <section class="expiring-widget">
-  <h2>Скоро истекающие</h2>
+  <h2>
+    <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+    Скоро истекающие
+  </h2>
   {% if expiring_soon %}
   <ul>
     {% for item in expiring_soon %}
     <li>
       <span class="product-name">{{ item.license.product_name }}</span>
       <span>
-        {{ item.license.expiry_date.strftime('%d.%m.%Y') }}
-        <span class="days-badge">{{ item.days_remaining }} дн.</span>
+        <span class="expiry-date">{{ item.license.expiry_date.strftime('%d.%m.%Y') }}</span>
+        <span class="days-badge{% if item.days_remaining <= 0 %} expired{% endif %}">{{ item.days_remaining }} дн.</span>
       </span>
     </li>
     {% endfor %}
   </ul>
   {% else %}
-  <p>Нет лицензий, требующих внимания</p>
+  <p class="expiring-empty">Нет лицензий, требующих внимания</p>
   {% endif %}
 </section>
 
-<!-- License Table -->
 <h2>Все лицензии</h2>
 
 {% if licenses %}
 <div class="filter-controls">
-  <input type="text" name="product"
-         hx-get="/licenses/table"
-         hx-trigger="keyup changed delay:300ms"
-         hx-target="#license-tbody"
-         hx-include="[name='status'],[name='sort'],[name='order']"
-         placeholder="Поиск по продукту...">
+  <div class="filter-search">
+    <svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg>
+    <input type="text" name="product"
+           hx-get="/licenses/table"
+           hx-trigger="keyup changed delay:300ms"
+           hx-target="#license-tbody"
+           hx-include="[name='status'],[name='sort'],[name='order']"
+           placeholder="Поиск по продукту…">
+  </div>
   <select name="status"
           hx-get="/licenses/table"
           hx-trigger="change"
@@ -65,36 +82,62 @@
   </select>
   <input type="hidden" name="sort" value="{{ current_sort }}">
   <input type="hidden" name="order" value="{{ current_order }}">
-  <a href="/licenses/new" class="btn btn-primary">+ Добавить лицензию</a>
+  <a href="/licenses/new" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    Добавить лицензию
+  </a>
 </div>
 
-<table class="license-table">
-  <thead>
-    <tr>
-      <th hx-get="/licenses/table?sort=product_name&order={% if current_sort == 'product_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
-          hx-target="#license-tbody"
-          hx-include="[name='product'],[name='status']"
-          style="cursor:pointer">
-        Продукт {% if current_sort == 'product_name' %}{{ '&#9650;'|safe if current_order == 'asc' else '&#9660;'|safe }}{% endif %}
-      </th>
-      <th hx-get="/licenses/table?sort=expiry_date&order={% if current_sort == 'expiry_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
-          hx-target="#license-tbody"
-          hx-include="[name='product'],[name='status']"
-          style="cursor:pointer">
-        Дата истечения {% if current_sort == 'expiry_date' %}{{ '&#9650;'|safe if current_order == 'asc' else '&#9660;'|safe }}{% endif %}
-      </th>
-      <th>Осталось дней</th>
-      <th>Статус</th>
-      <th>Ответственный</th>
-      <th>Действия</th>
-    </tr>
-  </thead>
-  <tbody id="license-tbody">
-    {% include "partials/license_table.html" %}
-  </tbody>
-</table>
+<div class="table-container">
+  <table class="license-table">
+    <thead>
+      <tr>
+        <th role="button" tabindex="0"
+            hx-get="/licenses/table?sort=product_name&order={% if current_sort == 'product_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
+            hx-target="#license-tbody"
+            hx-include="[name='product'],[name='status']">
+          Продукт
+          {% if current_sort == 'product_name' %}
+            {% if current_order == 'asc' %}
+              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-up"/></svg>
+            {% else %}
+              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-down"/></svg>
+            {% endif %}
+          {% endif %}
+        </th>
+        <th role="button" tabindex="0"
+            hx-get="/licenses/table?sort=expiry_date&order={% if current_sort == 'expiry_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
+            hx-target="#license-tbody"
+            hx-include="[name='product'],[name='status']">
+          Дата истечения
+          {% if current_sort == 'expiry_date' %}
+            {% if current_order == 'asc' %}
+              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-up"/></svg>
+            {% else %}
+              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-down"/></svg>
+            {% endif %}
+          {% endif %}
+        </th>
+        <th>Осталось дней</th>
+        <th>Статус</th>
+        <th>Ответственный</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody id="license-tbody">
+      {% include "partials/license_table.html" %}
+    </tbody>
+  </table>
+</div>
 {% else %}
-<a href="/licenses/new" class="btn btn-primary" style="margin-bottom: 1rem; display: inline-block;">+ Добавить лицензию</a>
-<p class="empty-state">Лицензии пока не добавлены</p>
+<div class="empty-state">
+  <svg class="icon icon-large" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
+  <h2>Пока нет лицензий</h2>
+  <p>Добавьте первую лицензию, чтобы начать отслеживать сроки их действия.</p>
+  <a href="/licenses/new" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    Добавить лицензию
+  </a>
+</div>
 {% endif %}
 {% endblock %}

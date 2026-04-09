@@ -1,21 +1,24 @@
+{% from "partials/_macros.html" import status_badge %}
 {% for item in licenses %}
 <tr class="{{ item.status_class }}">
-  <td><a href="/licenses/{{ item.license.id }}">{{ item.license.product_name }}</a></td>
+  <td class="product-cell"><a href="/licenses/{{ item.license.id }}">{{ item.license.product_name }}</a></td>
   <td>{{ item.license.expiry_date.strftime('%d.%m.%Y') }}</td>
   <td>{{ item.days_remaining }}</td>
-  <td>
-    {% if item.status == 'expired' %}Истекла
-    {% elif item.status == 'warning' %}Скоро истекает
-    {% else %}Активна{% endif %}
-  </td>
+  <td>{{ status_badge(item.status) }}</td>
   <td>{{ item.license.responsible or '\u2014' }}</td>
   <td class="actions-cell">
-    <a href="/licenses/{{ item.license.id }}/edit" class="action-link action-edit">Изменить</a>
+    <a href="/licenses/{{ item.license.id }}/edit" class="action-link action-edit">
+      <svg class="icon" aria-hidden="true"><use href="#icon-pencil"/></svg>
+      Изменить
+    </a>
     <button hx-delete="/licenses/{{ item.license.id }}"
             hx-confirm="Удалить лицензию «{{ item.license.product_name }}»? Это действие необратимо."
             hx-target="closest tr"
             hx-swap="outerHTML"
-            class="action-btn action-delete">Удалить</button>
+            class="action-btn action-delete">
+      <svg class="icon" aria-hidden="true"><use href="#icon-trash-2"/></svg>
+      Удалить
+    </button>
   </td>
 </tr>
 {% endfor %}
