@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 03
-last_updated: "2026-04-09T06:05:34.131Z"
+last_updated: "2026-04-09T06:12:11.732Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 8
 ---
 
 # Project State
@@ -46,6 +46,8 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 - [Phase 02]: Used StaticPool in test_health.py to fix in-memory SQLite connection isolation
 - [Phase 02]: HTMX partial pattern: endpoint returns Jinja2 fragment, hx-include preserves filter+sort state
 - [Phase 02]: Integration tests use per-fixture dependency override with restore to avoid cross-module conflicts
+- [Phase 03]: Detail endpoint placed after /licenses/new to avoid FastAPI route conflict
+- [Phase 03]: 404 returns TemplateResponse with status_code=404 for user-friendly HTML page
 
 ## Last Action
 
