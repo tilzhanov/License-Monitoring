@@ -72,6 +72,19 @@ Plans:
 - [ ] 03-03: Add form validation — server-side field validation, HTMX-friendly error fragment return, client-side date picker for expiry/purchase fields
 **UI hint**: yes
 
+### Phase 03.1: UI Polish (INSERTED)
+
+**Goal:** Transform the raw browser-default UI into a polished, data-first internal ops dashboard (Linear / Grafana / Vercel style) using ui-ux-pro-max design intelligence, without breaking existing HTMX functionality or Phase 2/3 integration tests
+**Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, UI-07, UI-08, UI-09, UI-10, UI-11, UI-12, UI-13, UI-14, UI-15, UI-16, UI-17, UI-18
+**Depends on:** Phase 3
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03.1-01-PLAN.md — CSS design-system foundation: token-driven app.css rewrite, Google Fonts + skip-link + SVG icon sprite wiring in base.html, status_badge macro, smoke test scaffold, append UI-01..UI-18 to REQUIREMENTS.md
+- [ ] 03.1-02-PLAN.md — Dashboard polish: stats cards (label-first), expiring widget with alert icon, table-container + keyboard-accessible sortable headers with chevrons, filter bar with search icon, row fragment using status_badge macro, locked empty-state copy
+- [ ] 03.1-03-PLAN.md — Forms + detail + 404 polish: form-card with required markers and field-error icons, detail page with arrow-left breadcrumb + verb+noun CTAs, 404 page with dynamic h1 resolving test_licenses.py:215 conflict
+- [ ] 03.1-04-PLAN.md — HTMX polish + a11y gate + visual UAT: htmx-request/fadeIn indicators, focus-visible + reduced-motion verification, full regression, VALIDATION.md sign-off, human UAT checkpoint
+
 ### Phase 4: Notifications & Settings
 **Goal**: The system automatically alerts the team on Telegram before licenses expire, and operators can configure all notification parameters through the UI
 **Depends on**: Phase 3
