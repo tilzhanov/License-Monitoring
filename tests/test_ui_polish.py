@@ -129,3 +129,231 @@ def test_nav_has_dashboard_icon_and_main_wrapper():
     assert 'href="#icon-layout-dashboard"' in html
     # main wrapper with id for skip-link target
     assert '<main id="main">' in html
+
+
+# ---------- Plan 03.1-02: Dashboard polish assertions ----------
+
+INDEX = ROOT / "templates" / "index.html"
+PARTIAL_TABLE = ROOT / "templates" / "partials" / "license_table.html"
+
+
+def _index() -> str:
+    return INDEX.read_text(encoding="utf-8")
+
+
+def _partial_table() -> str:
+    return PARTIAL_TABLE.read_text(encoding="utf-8")
+
+
+def test_index_preserves_stats_section_htmx():
+    html = _index()
+    assert 'id="stats-section"' in html
+    assert 'hx-get="/"' in html
+    assert 'hx-trigger="license-changed from:body"' in html
+    assert 'hx-target="#stats-section"' in html
+    assert 'hx-select="#stats-section"' in html
+    assert 'hx-swap="outerHTML"' in html
+
+
+def test_index_preserves_filter_htmx():
+    html = _index()
+    assert 'hx-get="/licenses/table"' in html
+    assert 'hx-target="#license-tbody"' in html
+    assert 'hx-trigger="keyup changed delay:300ms"' in html
+    assert 'hx-trigger="change"' in html
+    assert "hx-include=" in html
+
+
+def test_index_stat_cards_label_first():
+    # Spec §Component 3 requires label BEFORE count (inverted from current).
+    html = _index()
+    assert 'class="stat-card total"' in html
+    assert 'class="stat-card warning"' in html
+    assert 'class="stat-card expired"' in html
+    for variant in ["total", "warning", "expired"]:
+        card_start = html.find(f'class="stat-card {variant}"')
+        assert card_start != -1
+        slice_ = html[card_start:card_start + 500]
+        label_idx = slice_.find('class="label"')
+        count_idx = slice_.find('class="count"')
+        assert label_idx != -1 and count_idx != -1, f"card {variant} missing label/count"
+        assert label_idx < count_idx, f"card {variant} must render label BEFORE count"
+
+
+def test_index_expiring_widget_has_alert_icon():
+    html = _index()
+    assert 'class="expiring-widget"' in html
+    assert 'href="#icon-alert-triangle"' in html
+
+
+def test_index_table_container_wrapper():
+    html = _index()
+    assert 'class="table-container"' in html
+    assert 'class="license-table"' in html
+
+
+def test_index_sortable_th_keyboard_and_chevrons():
+    html = _index()
+    assert 'role="button"' in html
+    assert 'tabindex="0"' in html
+    assert 'href="#icon-chevron-up"' in html
+    assert 'href="#icon-chevron-down"' in html
+    assert "&#9650;" not in html
+    assert "&#9660;" not in html
+
+
+def test_index_filter_search_icon_and_plus_button():
+    html = _index()
+    assert 'class="filter-search"' in html
+    assert 'href="#icon-search"' in html
+    assert 'href="#icon-plus"' in html
+    assert "Добавить лицензию" in html
+
+
+def test_index_empty_state_locked_copy():
+    html = _index()
+    assert "Пока нет лицензий" in html
+    assert "Добавьте первую лицензию" in html
+
+
+def test_partial_table_uses_status_badge_macro():
+    html = _partial_table()
+    assert "import status_badge" in html
+    assert "status_badge(item.status)" in html
+
+
+def test_partial_table_preserves_delete_htmx():
+    html = _partial_table()
+    assert 'hx-delete="/licenses/' in html
+    assert 'hx-confirm="Удалить лицензию' in html
+    assert 'hx-target="closest tr"' in html
+    assert 'hx-swap="outerHTML"' in html
+
+
+def test_partial_table_preserves_status_row_classes():
+    html = _partial_table()
+    assert "{{ item.status_class }}" in html
+
+
+def test_index_no_inline_styles():
+    html = _index()
+    assert "style=" not in html, "inline style attributes must be removed from index.html"
+
+
+def test_index_imports_macros():
+    html = _index()
+    assert "from \"partials/_macros.html\" import status_badge" in html or \
+           "from 'partials/_macros.html' import status_badge" in html
+
+
+# ---------- Plan 03.1-03: Form, detail, 404 polish assertions ----------
+
+FORM = ROOT / "templates" / "license_form.html"
+DETAIL = ROOT / "templates" / "license_detail.html"
+NOT_FOUND = ROOT / "templates" / "404.html"
+
+
+def _form() -> str:
+    return FORM.read_text(encoding="utf-8")
+
+
+def _detail() -> str:
+    return DETAIL.read_text(encoding="utf-8")
+
+
+def _404() -> str:
+    return NOT_FOUND.read_text(encoding="utf-8")
+
+
+def test_form_container_and_card():
+    html = _form()
+    assert 'class="form-container"' in html
+    assert 'class="form-card"' in html
+    # No inline styles
+    assert "style=" not in html
+
+
+def test_form_required_labels():
+    html = _form()
+    # Product name and expiry date form-groups are marked required so CSS `::after " *"` fires
+    # Required groups use `class="form-group required"`
+    assert 'class="form-group required"' in html
+    # At least two required fields (product_name, expiry_date)
+    assert html.count('class="form-group required"') >= 2
+
+
+def test_form_field_error_icon():
+    html = _form()
+    # Error blocks must render the alert-triangle icon via sprite
+    assert 'href="#icon-alert-triangle"' in html
+    assert 'class="field-error"' in html
+
+
+def test_form_preserves_field_names():
+    html = _form()
+    for name in ['name="product_name"', 'name="purchase_date"',
+                 'name="expiry_date"', 'name="responsible"',
+                 'name="cost"', 'name="comment"']:
+        assert name in html, f"form missing {name}"
+
+
+def test_form_actions_verb_noun_copy():
+    html = _form()
+    # Primary CTA is one of the two verb+noun variants (new or edit context)
+    assert ("Сохранить лицензию" in html) or ("Сохранить изменения" in html) or \
+           ("{{ submit_text }}" in html)
+    # Secondary CTA must be verb+noun — NOT bare "Отмена" or "Вернуться к списку"
+    assert "Отменить изменения" in html
+    assert "Вернуться к списку" not in html
+
+
+def test_detail_breadcrumb_and_header():
+    html = _detail()
+    assert 'class="breadcrumb"' in html
+    assert 'href="#icon-arrow-left"' in html
+    assert 'class="detail-header"' in html
+    # Status badge macro used in detail header
+    assert "import status_badge" in html
+    assert "status_badge(status)" in html
+
+
+def test_detail_action_ctas_verb_noun():
+    html = _detail()
+    assert "Изменить лицензию" in html
+    assert "Вернуться к дашборду" in html
+    # Single-word "Изменить" as a standalone CTA must be gone
+    assert ">Изменить<" not in html
+    assert "Назад к дашборду" not in html
+
+
+def test_detail_no_inline_styles():
+    html = _detail()
+    assert "style=" not in html
+
+
+def test_detail_preserves_jinja_vars():
+    html = _detail()
+    # Context var names pinned by router + test_licenses.py:207
+    assert "license.product_name" in html
+    assert "license.expiry_date" in html
+    assert "license.purchase_date" in html
+    assert "license.responsible" in html
+    assert "license.cost" in html
+    assert "license.comment" in html
+    assert "days_left" in html
+
+
+def test_404_dynamic_title():
+    html = _404()
+    # Dynamic title keeps test_licenses.py:215 green AND lets generic 404s show spec copy
+    assert "title if title" in html
+    assert "Страница не найдена" in html
+    assert "Запрошенный ресурс не существует или был удалён." in html
+    assert 'href="#icon-x-circle"' in html
+    # Back link uses btn-secondary class and locked copy
+    assert "Вернуться на дашборд" in html
+    assert "btn-secondary" in html
+
+
+def test_404_no_inline_styles():
+    assert "style=" not in _404()
