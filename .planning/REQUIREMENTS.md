@@ -49,19 +49,19 @@
 - [x] **UI-01**: Introduce a single token-driven CSS design system (colors, spacing, typography, radius, shadow) declared on `:root` in `static/css/app.css`
 - [x] **UI-02**: Load Inter + JetBrains Mono via Google Fonts CDN with preconnect and `display=swap`, injected in `templates/base.html` `<head>` BEFORE the stylesheet link
 - [x] **UI-03**: Redesign top navigation bar: 56px tall, slate-900 background, `layout-dashboard` icon before brand, 14px uppercase letter-spacing 0.02em brand, accent-600 underline on current link
-- [ ] **UI-04**: Redesign stat counter cards: label-first then count, 24px tabular-nums count, variant color on count text only, 16px muted icon next to label, no shadow by default
-- [ ] **UI-05**: Redesign expiring-soon widget: slate-900 h2 with amber `alert-triangle` icon, slate-100 dividers, weight-600 product name, days-badge pill with warning or expired tokens
-- [ ] **UI-06**: Redesign license table: `.table-container` wrapper, slate-50 thead with uppercase 12px labels, 36px row content height, status row background + 4px inset left bar, product name cell as weight-600 link
-- [ ] **UI-07**: Replace `▲▼` Unicode sort indicators with inline Lucide `chevron-up` / `chevron-down` SVG in accent-600 12px, add `role="button"`, `tabindex="0"`, and hover `--slate-100` background to sortable headers
-- [ ] **UI-08**: Redesign filter controls: flex row 8px gap, 36px inputs with slate-200 border, inline `search` icon left 12px in search input, focus ring, primary "+ Добавить лицензию" button with `plus` icon
-- [ ] **UI-09**: Redesign buttons (primary / secondary / destructive / action-btn / action-link / action-edit / action-delete) with exact height/padding/color/hover/focus matrix from UI-SPEC §Component 8 including universal `:focus-visible` outline
-- [ ] **UI-10**: Redesign forms: max-width 640px, form-card with slate-200 border + radius-md + space-5 padding + shadow-sm, 12px weight-600 slate-700 labels, 36px inputs with focus ring, `.field-error` with `alert-triangle` icon, required-label `::after " *"`
-- [ ] **UI-11**: Redesign detail page: max-width 840px, breadcrumb with `arrow-left` icon, detail-card shadow-sm, detail-header flex-between with h1 + status badge, detail-fields grid `200px 1fr` with `8px 24px` gap, detail-comment border-top divider
-- [ ] **UI-12**: Redesign 404 page: centered layout, `x-circle` 48px slate-300 icon, dynamic `<h1>{{ title if title else "Страница не найдена" }}</h1>`, 14px slate-500 body, `.btn-secondary` back link with locked Russian copy
-- [ ] **UI-13**: Implement three empty states per UI-SPEC §Component 11 with locked Russian copy (no-licenses full empty, no-filter-match inline row, expiring-widget empty state)
-- [ ] **UI-14**: Ship reusable `.status-badge` component (inline-flex, 2px 8px padding, radius-lg pill, 12px weight-600, inline SVG icon, three variants), used in table Status column and detail-page header via Jinja macro
-- [ ] **UI-15**: Update copy throughout templates to match the locked verb+noun Russian copy table in UI-SPEC §Copywriting Contract
-- [ ] **UI-16**: Add HTMX visual indicators: `.htmx-request { opacity: 0.6; transition: opacity 120ms }` on `#license-tbody`, `pointer-events: none` during swap, `@keyframes fadeIn` on swapped rows, `#stats-section` opacity fade on `license-changed`
+- [x] **UI-04**: Redesign stat counter cards: label-first then count, 24px tabular-nums count, variant color on count text only, 16px muted icon next to label, no shadow by default
+- [x] **UI-05**: Redesign expiring-soon widget: slate-900 h2 with amber `alert-triangle` icon, slate-100 dividers, weight-600 product name, days-badge pill with warning or expired tokens
+- [x] **UI-06**: Redesign license table: `.table-container` wrapper, slate-50 thead with uppercase 12px labels, 36px row content height, status row background + 4px inset left bar, product name cell as weight-600 link
+- [x] **UI-07**: Replace `▲▼` Unicode sort indicators with inline Lucide `chevron-up` / `chevron-down` SVG in accent-600 12px, add `role="button"`, `tabindex="0"`, and hover `--slate-100` background to sortable headers
+- [x] **UI-08**: Redesign filter controls: flex row 8px gap, 36px inputs with slate-200 border, inline `search` icon left 12px in search input, focus ring, primary "+ Добавить лицензию" button with `plus` icon
+- [x] **UI-09**: Redesign buttons (primary / secondary / destructive / action-btn / action-link / action-edit / action-delete) with exact height/padding/color/hover/focus matrix from UI-SPEC §Component 8 including universal `:focus-visible` outline
+- [x] **UI-10**: Redesign forms: max-width 640px, form-card with slate-200 border + radius-md + space-5 padding + shadow-sm, 12px weight-600 slate-700 labels, 36px inputs with focus ring, `.field-error` with `alert-triangle` icon, required-label `::after " *"`
+- [x] **UI-11**: Redesign detail page: max-width 840px, breadcrumb with `arrow-left` icon, detail-card shadow-sm, detail-header flex-between with h1 + status badge, detail-fields grid `200px 1fr` with `8px 24px` gap, detail-comment border-top divider
+- [x] **UI-12**: Redesign 404 page: centered layout, `x-circle` 48px slate-300 icon, dynamic `<h1>{{ title if title else "Страница не найдена" }}</h1>`, 14px slate-500 body, `.btn-secondary` back link with locked Russian copy
+- [x] **UI-13**: Implement three empty states per UI-SPEC §Component 11 with locked Russian copy (no-licenses full empty, no-filter-match inline row, expiring-widget empty state)
+- [x] **UI-14**: Ship reusable `.status-badge` component (inline-flex, 2px 8px padding, radius-lg pill, 12px weight-600, inline SVG icon, three variants), used in table Status column and detail-page header via Jinja macro
+- [x] **UI-15**: Update copy throughout templates to match the locked verb+noun Russian copy table in UI-SPEC §Copywriting Contract
+- [x] **UI-16**: Add HTMX visual indicators: `.htmx-request { opacity: 0.6; transition: opacity 120ms }` on `#license-tbody`, `pointer-events: none` during swap, `@keyframes fadeIn` on swapped rows, `#stats-section` opacity fade on `license-changed`
 - [x] **UI-17**: Accessibility gate: skip-link visually hidden until `:focus`, universal `:focus-visible` accent-600 outline, sortable `<th>` reachable via Tab/Enter/Space, `@media (prefers-reduced-motion: reduce)` disables transitions
 - [x] **UI-18**: Test preservation gate: all Phase 2 & Phase 3 test assertions (test_dashboard.py, test_licenses.py, test_health.py, test_status.py) MUST still pass after UI retrofit — hard constraint on every other UI-xx requirement
 
@@ -124,19 +124,19 @@
 | UI-01 | Phase 03.1 | Complete |
 | UI-02 | Phase 03.1 | Complete |
 | UI-03 | Phase 03.1 | Complete |
-| UI-04 | Phase 03.1 | Pending |
-| UI-05 | Phase 03.1 | Pending |
-| UI-06 | Phase 03.1 | Pending |
-| UI-07 | Phase 03.1 | Pending |
-| UI-08 | Phase 03.1 | Pending |
-| UI-09 | Phase 03.1 | Pending |
-| UI-10 | Phase 03.1 | Pending |
-| UI-11 | Phase 03.1 | Pending |
-| UI-12 | Phase 03.1 | Pending |
-| UI-13 | Phase 03.1 | Pending |
-| UI-14 | Phase 03.1 | Pending |
-| UI-15 | Phase 03.1 | Pending |
-| UI-16 | Phase 03.1 | Pending |
+| UI-04 | Phase 03.1 | Complete |
+| UI-05 | Phase 03.1 | Complete |
+| UI-06 | Phase 03.1 | Complete |
+| UI-07 | Phase 03.1 | Complete |
+| UI-08 | Phase 03.1 | Complete |
+| UI-09 | Phase 03.1 | Complete |
+| UI-10 | Phase 03.1 | Complete |
+| UI-11 | Phase 03.1 | Complete |
+| UI-12 | Phase 03.1 | Complete |
+| UI-13 | Phase 03.1 | Complete |
+| UI-14 | Phase 03.1 | Complete |
+| UI-15 | Phase 03.1 | Complete |
+| UI-16 | Phase 03.1 | Complete |
 | UI-17 | Phase 03.1 | Complete |
 | UI-18 | Phase 03.1 | Complete |
 

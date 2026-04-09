@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 03.1
-last_updated: "2026-04-09T10:32:59.982Z"
+last_updated: "2026-04-09T10:48:03.341Z"
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 13
-  completed_plans: 10
+  completed_plans: 13
 ---
 
 # Project State
@@ -32,7 +32,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 | Phase 1 — Infrastructure | [##########] 3/3 plans complete |
 | Phase 2 — Dashboard | [##########] 3/3 plans complete |
 | Phase 3 — License CRUD | [##########] 3/3 plans complete |
-| Phase 03.1 — UI Polish (INSERTED) | [##░░░░░░░░] 1/4 plans complete |
+| Phase 03.1 — UI Polish (INSERTED) | [#######░░░] 3/4 plans complete |
 | Phase 4 — Notifications & Settings | Not started |
 
 ## Accumulated Context
@@ -56,11 +56,13 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 - [Phase 03]: Detail endpoint placed after /licenses/new to avoid FastAPI route conflict
 - [Phase 03]: 404 returns TemplateResponse with status_code=404 for user-friendly HTML page
 - [Phase 03.1-ui-polish]: Token-driven CSS design system with :root variables — no preprocessor, no @import; Lucide icon sprite via <symbol>+<use>; status row bar via inset box-shadow (not pseudo-elements); 12px removed from spacing scale (strict 8-point grid)
+- [Phase 03.1]: Label-first stat card layout per UI-SPEC Component 3; Unicode arrows replaced with SVG chevrons; empty-state copy locked to Copywriting Contract
+- [Phase 03.1]: Dynamic h1 in 404.html via {{ title if title else "Страница не найдена" }} resolves test_licenses.py:215 copy conflict without router changes; all CTAs follow verb+noun Copywriting Contract
 
 ## Last Action
 
-2026-04-09 — Completed Plan 03.1-01 (Design System Foundation). Rewrote static/css/app.css as 480-line token-driven system (slate ramp, accent, status, spacing, typography, radius, shadow). Added Google Fonts (Inter + JetBrains Mono), skip-link + main#main, Lucide icon sprite (12 symbols), status_badge Jinja macro. Scaffolded tests/test_ui_polish.py smoke suite (9 tests). Registered UI-01..UI-18 in REQUIREMENTS.md. Full suite 71/71 green, zero Phase 2/3 regressions.
+2026-04-09 — Completed Plan 03.1-03 (Forms, Detail & 404 Polish). Rewrote license_form.html with form-container/form-card, required labels, field-error icons. Rewrote license_detail.html with arrow-left breadcrumb, status_badge macro, verb+noun CTAs. Rewrote 404.html with dynamic title pattern. All inline styles removed. Full suite 95/95 green.
 
 ## Next Action
 
-Execute Plan 03.1-02 (dashboard polish) — consume new tokens + sprite + status_badge macro in index.html and partials/license_table.html.
+Execute Plan 03.1-04 (HTMX polish) — final UI polish plan for Phase 03.1.
