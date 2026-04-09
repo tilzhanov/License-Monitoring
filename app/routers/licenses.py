@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 
 from app.database import SessionDep
 from app.models import License
+from app.services.status import days_until_expiry, get_license_status, get_global_threshold
 from app.templates import templates
 
 router = APIRouter(tags=["licenses"])
@@ -23,6 +24,32 @@ def new_license(request: Request):
             "license": None,
             "errors": {},
             "form_data": {},
+        },
+    )
+
+
+@router.get("/licenses/{license_id}", response_class=HTMLResponse)
+def license_detail(license_id: int, request: Request, db: SessionDep):
+    license_obj = db.get(License, license_id)
+    if not license_obj:
+        return templates.TemplateResponse(
+            request=request,
+            name="404.html",
+            context={"title": "Лицензия не найдена"},
+            status_code=404,
+        )
+    threshold = get_global_threshold(db)
+    effective_threshold = license_obj.notify_days_before if license_obj.notify_days_before is not None else threshold
+    days_left = days_until_expiry(license_obj.expiry_date)
+    status = get_license_status(license_obj.expiry_date, effective_threshold)
+    return templates.TemplateResponse(
+        request=request,
+        name="license_detail.html",
+        context={
+            "license": license_obj,
+            "status": status,
+            "days_left": days_left,
+            "title": license_obj.product_name,
         },
     )
 
