@@ -1,0 +1,21 @@
+{# templates/partials/_macros.html — reusable Jinja macros for Phase 03.1 UI.
+   Import via: {% from "partials/_macros.html" import status_badge %} #}
+
+{% macro status_badge(status) -%}
+  {%- if status == "active" -%}
+    <span class="status-badge status-badge-active">
+      <svg class="icon" aria-hidden="true"><use href="#icon-check-circle-2"/></svg>
+      Активна
+    </span>
+  {%- elif status == "warning" -%}
+    <span class="status-badge status-badge-warning">
+      <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+      Скоро истекает
+    </span>
+  {%- else -%}
+    <span class="status-badge status-badge-expired">
+      <svg class="icon" aria-hidden="true"><use href="#icon-x-circle"/></svg>
+      Истекла
+    </span>
+  {%- endif -%}
+{%- endmacro %}

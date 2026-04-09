@@ -4,17 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}License Monitor{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <link rel="stylesheet" href="{{ url_for('static', path='/css/app.css') }}">
 </head>
 <body>
+  <a href="#main" class="skip-link">Перейти к содержимому</a>
+  {% include "partials/icons.html" %}
   <nav>
-    <a href="/" class="nav-brand">License Monitor</a>
+    <a href="/" class="nav-brand">
+      <svg class="icon" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
+      License Monitor
+    </a>
     <div class="nav-links">
-      <a href="/">Дашборд</a>
+      <a href="/" class="current">Дашборд</a>
     </div>
   </nav>
-  <main>
+  <main id="main">
     {% block content %}{% endblock %}
   </main>
 </body>
