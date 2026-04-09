@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ license.product_name }} — Мониторинг лицензий{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+  <div class="breadcrumb">
+    <a href="/">Дашборд</a> &gt; {{ license.product_name }}
+  </div>
+
+  <div class="detail-card">
+    <div class="detail-header">
+      <h1>{{ license.product_name }}</h1>
+      <span class="status-badge status-badge-{{ status }}">
+        {% if status == 'active' %}Активна{% elif status == 'warning' %}Скоро истекает{% else %}Истекла{% endif %}
+      </span>
+    </div>
+
+    <div class="detail-fields">
+      <span class="detail-label">Дата истечения</span>
+      <span class="detail-value">
+        {{ license.expiry_date.strftime('%d.%m.%Y') }}
+        {% if days_left > 0 %}
+          (осталось {{ days_left }} дн.)
+        {% elif days_left == 0 %}
+          (истекает сегодня)
+        {% else %}
+          (просрочено {{ (-days_left) }} дн.)
+        {% endif %}
+      </span>
+
+      <span class="detail-label">Дата покупки</span>
+      <span class="detail-value">{{ license.purchase_date.strftime('%d.%m.%Y') }}</span>
+
+      <span class="detail-label">Ответственный</span>
+      <span class="detail-value">{{ license.responsible or '---' }}</span>
+
+      <span class="detail-label">Стоимость</span>
+      <span class="detail-value">{{ license.cost or '---' }}</span>
+    </div>
+
+    {% if license.comment %}
+    <div class="detail-comment">
+      <span class="detail-label">Комментарий</span>
+      <p>{{ license.comment }}</p>
+    </div>
+    {% else %}
+    <div class="detail-comment">
+      <span class="detail-label">Комментарий</span>
+      <p>---</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="detail-actions">
+    <a href="/licenses/{{ license.id }}/edit" class="btn btn-primary">Изменить</a>
+    <a href="/" class="btn btn-secondary">Назад к дашборду</a>
+  </div>
+</div>
+{% endblock %}
