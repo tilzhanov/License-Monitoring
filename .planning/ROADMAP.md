@@ -69,7 +69,7 @@ Plans:
 Plans:
 - [x] 03-01: Implement license router — GET/POST for create, GET/PUT for edit (HTMX inline row swap), DELETE with confirmation, row and edit-row fragment templates
 - [x] 03-02: Build license detail page — full-page view of all fields, breadcrumb back to dashboard, edit link
-- [ ] 03-03: Add form validation — server-side field validation, HTMX-friendly error fragment return, client-side date picker for expiry/purchase fields
+- [x] 03-03: Add form validation — server-side field validation, HTMX-friendly error fragment return, client-side date picker for expiry/purchase fields
 **UI hint**: yes
 
 ### Phase 03.1: UI Polish (INSERTED) ✅
@@ -111,6 +111,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete   | 2026-04-06 |
 | 2. Dashboard | 3/3 | Complete | 2026-04-06 |
-| 3. License CRUD | 2/3 | In progress (03-03 pending) | - |
+| 3. License CRUD | 3/3 | Complete | 2026-04-09 |
 | 03.1. UI Polish | 4/4 | Complete | 2026-04-16 |
 | 4. Notifications & Settings | 0/4 | Not started | - |
