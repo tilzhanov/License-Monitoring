@@ -18,7 +18,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Никогда не пропустить истечение лицензии — Telegram-уведомление приходит заранее
-**Current focus:** Phase 03-03 — form validation (final CRUD plan)
+**Current focus:** Phase 4 — Notifications & Settings (next unstarted phase)
 
 ## Current Status
 
@@ -65,4 +65,4 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 ## Next Action
 
-Execute Phase 03-03 (form validation — final CRUD plan). Run `/gsd:plan-phase 03` to plan it, then `/gsd:execute-phase 03` to execute.
+Plan Phase 4 (Notifications & Settings). Run `/gsd:plan-phase 4`.
