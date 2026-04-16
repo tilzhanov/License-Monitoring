@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 03.1
-last_updated: "2026-04-09T10:49:15.218Z"
+status: Phase 03.1 Complete — ready for Phase 03-03 (final CRUD plan)
+last_updated: "2026-04-16"
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 13
-  completed_plans: 13
+  completed_phases: 4
+  total_plans: 17
+  completed_plans: 16
 ---
 
 # Project State
@@ -18,7 +18,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Никогда не пропустить истечение лицензии — Telegram-уведомление приходит заранее
-**Current focus:** Phase 03.1 — ui-polish
+**Current focus:** Phase 03-03 — form validation (final CRUD plan)
 
 ## Current Status
 
@@ -32,7 +32,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 | Phase 1 — Infrastructure | [##########] 3/3 plans complete |
 | Phase 2 — Dashboard | [##########] 3/3 plans complete |
 | Phase 3 — License CRUD | [##########] 3/3 plans complete |
-| Phase 03.1 — UI Polish (INSERTED) | [#######░░░] 3/4 plans complete |
+| Phase 03.1 — UI Polish (INSERTED) | [##########] 4/4 plans complete ✅ 2026-04-16 |
 | Phase 4 — Notifications & Settings | Not started |
 
 ## Accumulated Context
@@ -61,8 +61,8 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 ## Last Action
 
-2026-04-09 — Completed Plan 03.1-03 (Forms, Detail & 404 Polish). Rewrote license_form.html with form-container/form-card, required labels, field-error icons. Rewrote license_detail.html with arrow-left breadcrumb, status_badge macro, verb+noun CTAs. Rewrote 404.html with dynamic title pattern. All inline styles removed. Full suite 95/95 green.
+2026-04-16 — Completed Phase 03.1 (UI Polish). Plan 03.1-04: UAT approved, VALIDATION.md signed off, 03.1-04-SUMMARY.md created. Post-verification gap fix: added {% else %} filter-no-match empty state to license_table.html (UI-13). gsd-verifier passed 18/18. Final test count: 41 smoke tests, 103 local passes.
 
 ## Next Action
 
-Execute Plan 03.1-04 (HTMX polish) — final UI polish plan for Phase 03.1.
+Execute Phase 03-03 (form validation — final CRUD plan). Run `/gsd:plan-phase 03` to plan it, then `/gsd:execute-phase 03` to execute.
