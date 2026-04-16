@@ -8,6 +8,8 @@ for locked values.
 """
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parent.parent
 CSS = ROOT / "static" / "css" / "app.css"
 BASE = ROOT / "templates" / "base.html"
@@ -397,6 +399,7 @@ def test_ui17_reduced_motion_disables_transitions():
     assert "animation-duration: 0.01ms" in css
 
 
+@pytest.mark.skipif(not REQS.exists(), reason=".planning/ not available in Docker image")  # noqa: E501
 def test_ui18_requirement_coverage():
     """Every UI-01..UI-18 ID must be registered in REQUIREMENTS.md."""
     content = REQS.read_text(encoding="utf-8")
