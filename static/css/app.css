@@ -427,6 +427,8 @@ tr.status-expired:hover { background: #FEE2E2; }
   color: var(--slate-500);
   font-size: var(--text-sm);
 }
+.empty-filter-cell { display: flex; align-items: center; justify-content: center; gap: var(--space-2); }
+.link-reset { color: var(--accent-600); text-decoration: underline; }
 
 /* === 404 page === */
 .not-found {

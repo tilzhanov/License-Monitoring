@@ -21,4 +21,11 @@
     </button>
   </td>
 </tr>
+{% else %}
+<tr class="empty-row">
+  <td colspan="6" class="empty-filter-cell">
+    <svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg>
+    Ничего не найдено — <a href="/" hx-get="/" hx-target="#license-tbody" hx-select="#license-tbody" hx-swap="outerHTML" class="link-reset">Сбросить фильтры</a>
+  </td>
+</tr>
 {% endfor %}

@@ -440,3 +440,12 @@ def test_ui18_htmx_attr_preservation():
         'hx-swap="outerHTML"',
     ]:
         assert attr in partial, f"license_table.html missing {attr}"
+
+
+def test_ui13_filter_no_match_empty_state():
+    """UI-13: license_table.html must render an inline empty row when filter returns 0 results."""
+    partial = (ROOT / "templates" / "partials" / "license_table.html").read_text(encoding="utf-8")
+    assert "{% else %}" in partial, "license_table.html missing {% else %} branch for zero-results"
+    assert "empty-row" in partial
+    assert "Ничего не найдено" in partial
+    assert "Сбросить фильтры" in partial
