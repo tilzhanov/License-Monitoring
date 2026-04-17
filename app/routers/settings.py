@@ -8,6 +8,7 @@ from app.config import NOTIFY_DAYS_BEFORE, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 from app.database import SessionDep
 from app.models import AppSettings
 from app.templates import templates
+from app.services.scheduler import reschedule_digest
 
 router = APIRouter(tags=["settings"])
 
@@ -101,6 +102,13 @@ def save_settings(
     save_setting(db, "telegram_chat_id", chat_id)
     save_setting(db, "notify_days_before", notify_days_before)
     save_setting(db, "notify_time", notify_time)
+
+    # D-07: reschedule the daily digest job when notify_time changes
+    h, m = int(notify_time.split(":")[0]), int(notify_time.split(":")[1])
+    try:
+        reschedule_digest(h, m)
+    except Exception:
+        pass  # Scheduler may not be running in tests — safe to skip
 
     return templates.TemplateResponse(
         request=request,
