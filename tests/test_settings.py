@@ -180,3 +180,49 @@ def test_settings_db_over_env_precedence(client):
         row = session.query(AppSettings).filter(AppSettings.key == "notify_days_before").first()
     assert row is not None
     assert row.value == "45"
+
+
+# ---------- test notification tests (SETT-02) ----------
+
+def test_test_notification_success(client):
+    """POST /settings/test-notification with valid credentials sends message. Covers SETT-02."""
+    from unittest.mock import patch
+
+    with Session(test_engine) as session:
+        session.add(AppSettings(key="telegram_bot_token", value="tok123"))
+        session.add(AppSettings(key="telegram_chat_id", value="-100"))
+        session.commit()
+
+    with patch("app.routers.settings.send_telegram_message", return_value={"ok": True}):
+        response = client.post("/settings/test-notification")
+
+    assert response.status_code == 200
+    assert "Тестовое уведомление отправлено" in response.text
+
+
+def test_test_notification_no_credentials(client):
+    """POST /settings/test-notification without credentials shows error. Covers SETT-02 error case."""
+    response = client.post("/settings/test-notification")
+
+    assert response.status_code == 200
+    assert "Сначала настройте" in response.text
+
+
+def test_test_notification_telegram_error(client):
+    """POST /settings/test-notification with Telegram error shows error message. Covers SETT-02."""
+    from unittest.mock import patch
+
+    with Session(test_engine) as session:
+        session.add(AppSettings(key="telegram_bot_token", value="bad_token"))
+        session.add(AppSettings(key="telegram_chat_id", value="-100"))
+        session.commit()
+
+    with patch(
+        "app.routers.settings.send_telegram_message",
+        return_value={"ok": False, "error": "Неверный токен бота", "error_code": 401},
+    ):
+        response = client.post("/settings/test-notification")
+
+    assert response.status_code == 200
+    assert "Ошибка" in response.text
+    assert "Неверный токен бота" in response.text
