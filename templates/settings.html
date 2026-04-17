@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки — License Monitor{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h1>Настройки</h1>
+  {% include "partials/settings_form.html" %}
+
+  <div class="settings-test-action">
+    <button type="button" class="btn btn-secondary"
+            hx-post="/settings/test-notification"
+            hx-target="#test-result"
+            hx-swap="innerHTML">
+      Отправить тестовое уведомление
+    </button>
+    <div id="test-result"></div>
+  </div>
+</div>
+{% endblock %}

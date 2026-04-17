@@ -463,6 +463,9 @@ tr.status-expired:hover { background: #FEE2E2; }
   box-shadow: var(--shadow-focus);
 }
 
+/* === Settings page === */
+.settings-test-action { margin-top: var(--space-4); }
+
 /* === Reduced motion === */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
