@@ -8,7 +8,7 @@ progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 | Phase 2 — Dashboard | [##########] 3/3 plans complete |
 | Phase 3 — License CRUD | [##########] 3/3 plans complete |
 | Phase 03.1 — UI Polish (INSERTED) | [##########] 4/4 plans complete ✅ 2026-04-16 |
-| Phase 4 — Notifications & Settings | 3/4 plans complete (in progress) |
+| Phase 4 — Notifications & Settings | 4/4 plans complete (awaiting UAT checkpoint) |
 
 ## Accumulated Context
 
@@ -64,11 +64,14 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 - [Phase 04]: format_license_line uses U+2022 bullet not asterisk; responsible omitted when None
 - [Phase 04]: Session(engine) used directly in scheduler job for thread-safety (not request-scoped get_session)
 - [Phase 04]: scheduler.running guard prevents SchedulerAlreadyRunningError on uvicorn --reload
+- [Phase 04-04]: test_notification returns raw HTMLResponse (not template) for HTMX inline swap
+- [Phase 04-04]: notify_days_before parsed as int or None (empty string = global default)
+- [Phase 04-04]: Patching app.routers.settings.send_telegram_message for correct mock scope in tests
 
 ## Last Action
 
-2026-04-17 — Completed Phase 04 Plan 03 (APScheduler Scheduler). BackgroundScheduler wired into FastAPI lifespan with CronTrigger daily digest. send_daily_digest() creates Session(engine) for thread-safety, skips when unconfigured (D-11), skips empty digest (D-04), stores last_digest_sent on success. reschedule_digest() called on settings save (D-07). 9 unit tests added. Total 134 tests pass.
+2026-04-17 — Completed Phase 04 Plan 04 Tasks 1-2. POST /settings/test-notification endpoint added with inline HTMX result. notify_days_before field added to license forms (add/edit), saved to DB with None fallback for global default. 7 new tests added (3 notification, 4 threshold). Total 141 tests pass. Awaiting Task 3: Visual UAT checkpoint.
 
 ## Next Action
 
-Execute Phase 04 Plan 04 (test-notification endpoint and final wiring).
+User approves Task 3 UAT checkpoint — Phase 04 complete.
