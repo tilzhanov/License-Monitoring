@@ -72,6 +72,15 @@
                   placeholder="Дополнительная информация">{{ form_data.get('comment', '') if form_data else (license.comment if license and license.comment else '') }}</textarea>
       </div>
 
+      <div class="form-group">
+        <label for="notify_days_before">Порог уведомления (дни)</label>
+        <input type="number" id="notify_days_before" name="notify_days_before"
+               value="{{ form_data.get('notify_days_before', '') if form_data else (license.notify_days_before if license and license.notify_days_before else '') }}"
+               min="1"
+               placeholder="По умолчанию: глобальный порог">
+        <span class="field-hint">Оставьте пустым для использования глобального порога</span>
+      </div>
+
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
         <a href="/" class="btn btn-secondary">Отменить изменения</a>

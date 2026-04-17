@@ -9,6 +9,7 @@ from app.database import SessionDep
 from app.models import AppSettings
 from app.templates import templates
 from app.services.scheduler import reschedule_digest
+from app.services.telegram import send_telegram_message
 
 router = APIRouter(tags=["settings"])
 
@@ -123,3 +124,27 @@ def save_settings(
             "success_message": "Настройки сохранены",
         },
     )
+
+
+@router.post("/settings/test-notification", response_class=HTMLResponse)
+def test_notification(db: SessionDep):
+    """Send a test Telegram message and return an inline HTML result fragment."""
+    token = get_setting(db, "telegram_bot_token", "")
+    chat_id = get_setting(db, "telegram_chat_id", "")
+
+    if not token or not chat_id:
+        return HTMLResponse(
+            content='<div class="alert alert-error">Сначала настройте токен бота и Chat ID</div>'
+        )
+
+    result = send_telegram_message(token, chat_id, "License Monitor: тестовое уведомление отправлено успешно.")
+
+    if result["ok"]:
+        return HTMLResponse(
+            content='<div class="alert alert-success">Тестовое уведомление отправлено</div>'
+        )
+    else:
+        error_text = result.get("error", "Неизвестная ошибка")
+        return HTMLResponse(
+            content=f'<div class="alert alert-error">Ошибка: {error_text}</div>'
+        )

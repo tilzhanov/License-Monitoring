@@ -213,3 +213,65 @@ def test_detail_nonexistent(client):
     resp = client.get("/licenses/99999")
     assert resp.status_code == 404
     assert "Лицензия не найдена" in resp.text
+
+
+# --- Per-license threshold (LIC-06) ---
+
+
+def test_create_license_with_threshold(client):
+    """POST /licenses with notify_days_before=45 saves threshold to DB. Covers LIC-06."""
+    resp = client.post("/licenses", data={
+        "product_name": "vCenter Threshold",
+        "purchase_date": "2025-01-01",
+        "expiry_date": "2027-12-31",
+        "responsible": "Иванов",
+        "cost": "",
+        "comment": "",
+        "notify_days_before": "45",
+    }, follow_redirects=False)
+    assert resp.status_code == 303
+
+    with Session(test_engine) as session:
+        lic = session.query(License).filter_by(product_name="vCenter Threshold").first()
+        assert lic is not None
+        assert lic.notify_days_before == 45
+
+
+def test_create_license_without_threshold(client):
+    """POST /licenses without notify_days_before saves None (global default). Covers D-13."""
+    resp = client.post("/licenses", data={
+        "product_name": "Veeam No Threshold",
+        "purchase_date": "2025-01-01",
+        "expiry_date": "2027-12-31",
+    }, follow_redirects=False)
+    assert resp.status_code == 303
+
+    with Session(test_engine) as session:
+        lic = session.query(License).filter_by(product_name="Veeam No Threshold").first()
+        assert lic is not None
+        assert lic.notify_days_before is None
+
+
+def test_edit_license_threshold_field_rendered(client, sample_license):
+    """GET /licenses/{id}/edit includes notify_days_before field. Covers LIC-06 UI."""
+    resp = client.get(f"/licenses/{sample_license.id}/edit")
+    assert resp.status_code == 200
+    assert 'name="notify_days_before"' in resp.text
+
+
+def test_update_license_with_threshold(client, sample_license):
+    """POST /licenses/{id} with notify_days_before=90 updates DB value. Covers LIC-06."""
+    resp = client.post(f"/licenses/{sample_license.id}", data={
+        "product_name": sample_license.product_name,
+        "purchase_date": sample_license.purchase_date.isoformat(),
+        "expiry_date": sample_license.expiry_date.isoformat(),
+        "responsible": "",
+        "cost": "",
+        "comment": "",
+        "notify_days_before": "90",
+    }, follow_redirects=False)
+    assert resp.status_code == 303
+
+    with Session(test_engine) as session:
+        lic = session.get(License, sample_license.id)
+        assert lic.notify_days_before == 90

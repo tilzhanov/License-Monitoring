@@ -100,6 +100,7 @@ def create_license(
     responsible: str = Form(""),
     cost: str = Form(""),
     comment: str = Form(""),
+    notify_days_before: str = Form(""),
 ):
     errors, parsed_purchase, parsed_expiry = _validate_license_form(
         product_name, purchase_date, expiry_date,
@@ -113,6 +114,7 @@ def create_license(
             "responsible": responsible,
             "cost": cost,
             "comment": comment,
+            "notify_days_before": notify_days_before,
         }
         return templates.TemplateResponse(
             request=request,
@@ -128,6 +130,8 @@ def create_license(
             },
         )
 
+    parsed_notify = int(notify_days_before) if notify_days_before.strip() else None
+
     license_obj = License(
         product_name=product_name.strip(),
         purchase_date=parsed_purchase,
@@ -135,6 +139,7 @@ def create_license(
         responsible=responsible.strip() or None,
         cost=cost.strip() or None,
         comment=comment.strip() or None,
+        notify_days_before=parsed_notify,
     )
     db.add(license_obj)
     db.commit()
@@ -173,6 +178,7 @@ def update_license(
     responsible: str = Form(""),
     cost: str = Form(""),
     comment: str = Form(""),
+    notify_days_before: str = Form(""),
 ):
     license_obj = db.get(License, license_id)
     if not license_obj:
@@ -190,6 +196,7 @@ def update_license(
             "responsible": responsible,
             "cost": cost,
             "comment": comment,
+            "notify_days_before": notify_days_before,
         }
         return templates.TemplateResponse(
             request=request,
@@ -205,12 +212,15 @@ def update_license(
             },
         )
 
+    parsed_notify = int(notify_days_before) if notify_days_before.strip() else None
+
     license_obj.product_name = product_name.strip()
     license_obj.purchase_date = parsed_purchase
     license_obj.expiry_date = parsed_expiry
     license_obj.responsible = responsible.strip() or None
     license_obj.cost = cost.strip() or None
     license_obj.comment = comment.strip() or None
+    license_obj.notify_days_before = parsed_notify
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 
