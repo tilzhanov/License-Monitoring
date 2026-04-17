@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 03.1 Complete — ready for Phase 03-03 (final CRUD plan)
-last_updated: "2026-04-16"
+status: Executing Phase 04
+last_updated: "2026-04-17T04:55:07.284Z"
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
-  completed_plans: 16
+  completed_plans: 14
 ---
 
 # Project State
@@ -18,7 +18,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Никогда не пропустить истечение лицензии — Telegram-уведомление приходит заранее
-**Current focus:** Phase 4 — Notifications & Settings (next unstarted phase)
+**Current focus:** Phase 04 — notifications-settings
 
 ## Current Status
 
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 | Phase 2 — Dashboard | [##########] 3/3 plans complete |
 | Phase 3 — License CRUD | [##########] 3/3 plans complete |
 | Phase 03.1 — UI Polish (INSERTED) | [##########] 4/4 plans complete ✅ 2026-04-16 |
-| Phase 4 — Notifications & Settings | Not started |
+| Phase 4 — Notifications & Settings | 1/4 plans complete (in progress) |
 
 ## Accumulated Context
 
@@ -58,11 +58,13 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 - [Phase 03.1-ui-polish]: Token-driven CSS design system with :root variables — no preprocessor, no @import; Lucide icon sprite via <symbol>+<use>; status row bar via inset box-shadow (not pseudo-elements); 12px removed from spacing scale (strict 8-point grid)
 - [Phase 03.1]: Label-first stat card layout per UI-SPEC Component 3; Unicode arrows replaced with SVG chevrons; empty-state copy locked to Copywriting Contract
 - [Phase 03.1]: Dynamic h1 in 404.html via {{ title if title else "Страница не найдена" }} resolves test_licenses.py:215 copy conflict without router changes; all CTAs follow verb+noun Copywriting Contract
+- [Phase 04]: notify_time stored as HH:MM string in AppSettings; validated server-side with regex
+- [Phase 04]: get_setting helper returns DB value if non-empty, else env fallback implementing SETT-03 DB-over-env precedence
 
 ## Last Action
 
-2026-04-16 — Completed Phase 03.1 (UI Polish). Plan 03.1-04: UAT approved, VALIDATION.md signed off, 03.1-04-SUMMARY.md created. Post-verification gap fix: added {% else %} filter-no-match empty state to license_table.html (UI-13). gsd-verifier passed 18/18. Final test count: 41 smoke tests, 103 local passes.
+2026-04-17 — Completed Phase 04 Plan 01 (Settings Page). GET/POST /settings with HTMX outerHTML swap, DB-over-env precedence, validation. 7 integration tests added. Total 110 tests pass.
 
 ## Next Action
 
-Plan Phase 4 (Notifications & Settings). Run `/gsd:plan-phase 4`.
+Execute Phase 04 Plan 02 (Telegram service and notifications).
