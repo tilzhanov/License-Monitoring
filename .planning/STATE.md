@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 04
-last_updated: "2026-04-17T04:55:07.284Z"
+last_updated: "2026-04-17T04:58:12.073Z"
 progress:
   total_phases: 5
   completed_phases: 4
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -33,7 +33,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 | Phase 2 — Dashboard | [##########] 3/3 plans complete |
 | Phase 3 — License CRUD | [##########] 3/3 plans complete |
 | Phase 03.1 — UI Polish (INSERTED) | [##########] 4/4 plans complete ✅ 2026-04-16 |
-| Phase 4 — Notifications & Settings | 1/4 plans complete (in progress) |
+| Phase 4 — Notifications & Settings | 2/4 plans complete (in progress) |
 
 ## Accumulated Context
 
@@ -60,11 +60,13 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 - [Phase 03.1]: Dynamic h1 in 404.html via {{ title if title else "Страница не найдена" }} resolves test_licenses.py:215 copy conflict without router changes; all CTAs follow verb+noun Copywriting Contract
 - [Phase 04]: notify_time stored as HH:MM string in AppSettings; validated server-side with regex
 - [Phase 04]: get_setting helper returns DB value if non-empty, else env fallback implementing SETT-03 DB-over-env precedence
+- [Phase 04]: No parse_mode in sendMessage: plain text per D-03, html.escape applied for future-proofing
+- [Phase 04]: format_license_line uses U+2022 bullet not asterisk; responsible omitted when None
 
 ## Last Action
 
-2026-04-17 — Completed Phase 04 Plan 01 (Settings Page). GET/POST /settings with HTMX outerHTML swap, DB-over-env precedence, validation. 7 integration tests added. Total 110 tests pass.
+2026-04-17 — Completed Phase 04 Plan 02 (Telegram Service). send_telegram_message(), format_digest(), format_license_line() implemented with sync httpx.Client, Russian error messages, html.escape, D-01..D-04 compliance. 15 unit tests added. Total 125 tests pass.
 
 ## Next Action
 
-Execute Phase 04 Plan 02 (Telegram service and notifications).
+Execute Phase 04 Plan 03 (APScheduler daily digest).

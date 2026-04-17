@@ -101,7 +101,7 @@ Plans:
 
 Plans:
 - [x] 04-01: Implement settings service and router — `AppSettings` key-value table, DB-over-env precedence chain, settings page with HTMX form save, `GET /settings` and `POST /settings`
-- [ ] 04-02: Build Telegram notification service — `send_telegram_message()` with httpx, HTML parse mode, `html.escape()` for all user strings, error classification (401/400/403/timeout)
+- [x] 04-02: Build Telegram notification service — `send_telegram_message()` with httpx, HTML parse mode, `html.escape()` for all user strings, error classification (401/400/403/timeout)
 - [ ] 04-03: Implement daily scheduler job — APScheduler `BackgroundScheduler` in lifespan, `CronTrigger` at 09:00 team timezone, digest formatter grouping licenses by urgency, per-license threshold override logic
 - [ ] 04-04: Wire test notification endpoint and per-license threshold — `POST /settings/test-notification` HTMX endpoint with user-visible error messages, `notification_threshold_days` column on `License` model, field on edit form
 
@@ -113,4 +113,4 @@ Plans:
 | 2. Dashboard | 3/3 | Complete | 2026-04-06 |
 | 3. License CRUD | 3/3 | Complete | 2026-04-09 |
 | 03.1. UI Polish | 4/4 | Complete | 2026-04-16 |
-| 4. Notifications & Settings | 1/4 | In Progress|  |
+| 4. Notifications & Settings | 2/4 | In Progress|  |
