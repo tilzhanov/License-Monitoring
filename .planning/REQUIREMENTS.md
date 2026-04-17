@@ -25,7 +25,7 @@
 ### Notifications
 
 - [x] **NOTF-01**: Telegram-бот отправляет уведомления в настроенный чат/группу
-- [ ] **NOTF-02**: Уведомления отправляются автоматически по расписанию (раз в день)
+- [x] **NOTF-02**: Уведомления отправляются автоматически по расписанию (раз в день)
 - [x] **NOTF-03**: Уведомление содержит: название продукта, дату истечения, количество дней до истечения, ответственного
 - [x] **NOTF-04**: Глобальный порог уведомлений настраивается через интерфейс (за сколько дней предупреждать)
 - [x] **NOTF-05**: Для отдельной лицензии можно задать свой порог уведомления, переопределив глобальный
@@ -42,7 +42,7 @@
 - [x] **INFRA-01**: Приложение запускается через `docker-compose up`
 - [x] **INFRA-02**: Конфигурация через `.env` файл: порт, секреты, параметры по умолчанию
 - [x] **INFRA-03**: SQLite как хранилище данных (файл монтируется как volume)
-- [ ] **INFRA-04**: Планировщик уведомлений запускается внутри Python-процесса (APScheduler)
+- [x] **INFRA-04**: Планировщик уведомлений запускается внутри Python-процесса (APScheduler)
 
 ### UI Polish (Phase 03.1)
 
@@ -109,7 +109,7 @@
 | LIC-05 | Phase 2 | Pending |
 | LIC-06 | Phase 4 | Pending |
 | NOTF-01 | Phase 4 | Complete |
-| NOTF-02 | Phase 4 | Pending |
+| NOTF-02 | Phase 4 | Complete |
 | NOTF-03 | Phase 4 | Complete |
 | NOTF-04 | Phase 4 | Complete |
 | NOTF-05 | Phase 4 | Complete |
@@ -120,7 +120,7 @@
 | INFRA-01 | Phase 1 | Complete |
 | INFRA-02 | Phase 1 | Complete |
 | INFRA-03 | Phase 1 | Complete |
-| INFRA-04 | Phase 4 | Pending |
+| INFRA-04 | Phase 4 | Complete |
 | UI-01 | Phase 03.1 | Complete |
 | UI-02 | Phase 03.1 | Complete |
 | UI-03 | Phase 03.1 | Complete |
