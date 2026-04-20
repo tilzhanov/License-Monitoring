@@ -9,6 +9,8 @@ COPY app/ ./app/
 COPY templates/ ./templates/
 COPY static/ ./static/
 COPY tests/ ./tests/
+COPY .env.example .
+COPY .gitignore .
 
 RUN mkdir -p /data
 
