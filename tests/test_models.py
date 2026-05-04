@@ -5,45 +5,52 @@ from app.models import License, AppSettings
 from app.database import Base
 
 
-def test_license_table_exists(test_engine):
-    """licenses table is created by create_all."""
+def test_assets_table_exists(test_engine):
+    """assets table replaces licenses in v1.1; License is alias for Asset."""
     inspector = inspect(test_engine)
-    assert "licenses" in inspector.get_table_names()
+    names = inspector.get_table_names()
+    assert "assets" in names
+    assert "licenses" not in names
 
 
-def test_license_columns(test_engine):
-    """licenses table has all required columns per LIC-04 and D-04 through D-07."""
+def test_assets_columns(test_engine):
+    """assets table contains common + SSL/support type-specific columns."""
     inspector = inspect(test_engine)
-    columns = {col["name"] for col in inspector.get_columns("licenses")}
+    columns = {col["name"] for col in inspector.get_columns("assets")}
     expected = {
-        "id", "product_name", "purchase_date", "expiry_date",
+        "id", "product_id", "asset_type",
+        "product_name", "purchase_date", "expiry_date",
         "responsible", "cost", "comment", "notify_days_before",
+        "ssl_domain", "ssl_issuer",
+        "support_contract_no", "support_sla",
         "created_at", "updated_at",
     }
     assert expected == columns
 
 
-def test_license_not_null_columns(test_engine):
-    """product_name, purchase_date, expiry_date are NOT NULL per D-04."""
+def test_assets_not_null_columns(test_engine):
+    """product_name, expiry_date, asset_type are NOT NULL."""
     inspector = inspect(test_engine)
-    columns = {col["name"]: col["nullable"] for col in inspector.get_columns("licenses")}
+    columns = {col["name"]: col["nullable"] for col in inspector.get_columns("assets")}
     assert columns["product_name"] is False
-    assert columns["purchase_date"] is False
     assert columns["expiry_date"] is False
+    assert columns["asset_type"] is False
 
 
-def test_license_nullable_columns(test_engine):
-    """responsible, cost, comment, notify_days_before are nullable per D-04."""
+def test_assets_nullable_columns(test_engine):
+    """purchase_date is now nullable (SSL has no purchase concept)."""
     inspector = inspect(test_engine)
-    columns = {col["name"]: col["nullable"] for col in inspector.get_columns("licenses")}
+    columns = {col["name"]: col["nullable"] for col in inspector.get_columns("assets")}
+    assert columns["purchase_date"] is True
     assert columns["responsible"] is True
     assert columns["cost"] is True
     assert columns["comment"] is True
     assert columns["notify_days_before"] is True
+    assert columns["product_id"] is True
 
 
 def test_license_insert_required_only(test_session):
-    """License can be inserted with only required fields; nullable fields default to None."""
+    """License (alias for Asset) can be inserted with only required fields."""
     lic = License(
         product_name="vSphere",
         purchase_date=date(2024, 1, 1),
@@ -55,6 +62,7 @@ def test_license_insert_required_only(test_session):
 
     assert lic.id is not None
     assert lic.product_name == "vSphere"
+    assert lic.asset_type == "license"
     assert lic.responsible is None
     assert lic.cost is None
     assert lic.comment is None
