@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database import bootstrap_settings, create_db_tables, engine
 from app.models import AppSettings, License  # noqa: F401 -- ensure models registered before create_all
+from app.routers.catalog import router as catalog_router
 from app.routers.licenses import router as licenses_router
 from app.routers.pages import router as pages_router
 from app.routers.settings import router as settings_router
@@ -39,3 +40,4 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(pages_router)
 app.include_router(licenses_router)
 app.include_router(settings_router)
+app.include_router(catalog_router)

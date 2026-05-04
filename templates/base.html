@@ -38,6 +38,10 @@
         <svg class="icon" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
         Дашборд
       </a>
+      <a href="/catalog" class="{{ 'current' if _path.startswith('/catalog') else '' }}">
+        <svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg>
+        Каталог
+      </a>
       <a href="/settings" class="{{ 'current' if _path.startswith('/settings') else '' }}">
         <svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg>
         Настройки

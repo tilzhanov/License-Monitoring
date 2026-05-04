@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — License Monitor{% endblock %}
+
+{% set TYPE_LABEL = {
+  'license': 'Лицензия',
+  'support': 'Тех.поддержка',
+  'ssl': 'SSL сертификат',
+} %}
+
+{% macro field_value(form_data, asset, key, attr=None) -%}
+{%- if form_data and key in form_data and form_data[key] -%}{{ form_data[key] }}{%- elif asset and getattr(asset, attr or key, None) -%}{{ getattr(asset, attr or key) }}{%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+{% set errors = errors or {} %}
+{% set form_data = form_data or {} %}
+<div class="form-container">
+  <div class="breadcrumb">
+    <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+    <a href="/catalog">Каталог</a>
+    {% if vendor %}<span>/</span><a href="/catalog/vendors/{{ vendor.id }}">{{ vendor.name }}</a>{% endif %}
+    {% if product %}<span>/</span><a href="/catalog/products/{{ product.id }}">{{ product.name }}</a>{% endif %}
+    <span>/</span>
+    <span>{{ TYPE_LABEL.get(asset_type, asset_type) }}</span>
+  </div>
+  <h1>{{ title }}</h1>
+  <p>Тип: <strong>{{ TYPE_LABEL.get(asset_type, asset_type) }}</strong></p>
+
+  <div class="form-card">
+    <form method="post" action="{{ action_url }}">
+      <input type="hidden" name="asset_type" value="{{ asset_type }}">
+
+      <div class="form-group required">
+        <label for="product_name">Название</label>
+        <input type="text" id="product_name" name="product_name" autofocus required
+               placeholder="{% if asset_type == 'ssl' %}Например: Wildcard *.example.com{% elif asset_type == 'support' %}Например: Premier Support 2026{% else %}Например: vCenter 7.0{% endif %}"
+               value="{{ form_data.get('product_name', asset.product_name if asset else '') }}"
+               class="{{ 'input-error' if errors.get('product_name') else '' }}">
+        {% if errors.get('product_name') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['product_name'] }}
+        </span>
+        {% endif %}
+      </div>
+
+      {% if asset_type == 'ssl' %}
+      <div class="form-group required">
+        <label for="ssl_domain">Домен</label>
+        <input type="text" id="ssl_domain" name="ssl_domain"
+               placeholder="example.com или *.example.com"
+               value="{{ form_data.get('ssl_domain', asset.ssl_domain if asset and asset.ssl_domain else '') }}"
+               class="{{ 'input-error' if errors.get('ssl_domain') else '' }}">
+        {% if errors.get('ssl_domain') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['ssl_domain'] }}
+        </span>
+        {% endif %}
+      </div>
+      <div class="form-group">
+        <label for="ssl_issuer">Издатель (CA)</label>
+        <input type="text" id="ssl_issuer" name="ssl_issuer"
+               placeholder="Например: Let's Encrypt, Sectigo"
+               value="{{ form_data.get('ssl_issuer', asset.ssl_issuer if asset and asset.ssl_issuer else '') }}">
+      </div>
+      {% endif %}
+
+      {% if asset_type == 'support' %}
+      <div class="form-group">
+        <label for="support_contract_no">Номер контракта</label>
+        <input type="text" id="support_contract_no" name="support_contract_no"
+               placeholder="Например: TT-2026-0042"
+               value="{{ form_data.get('support_contract_no', asset.support_contract_no if asset and asset.support_contract_no else '') }}">
+      </div>
+      <div class="form-group">
+        <label for="support_sla">SLA</label>
+        <input type="text" id="support_sla" name="support_sla"
+               placeholder="Например: 24x7, 8x5, Premier"
+               value="{{ form_data.get('support_sla', asset.support_sla if asset and asset.support_sla else '') }}">
+      </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="purchase_date">Дата покупки</label>
+        <input type="date" id="purchase_date" name="purchase_date"
+               value="{{ form_data.get('purchase_date', asset.purchase_date.isoformat() if asset and asset.purchase_date else '') }}"
+               class="{{ 'input-error' if errors.get('purchase_date') else '' }}">
+        {% if errors.get('purchase_date') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['purchase_date'] }}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="form-group required">
+        <label for="expiry_date">Дата истечения</label>
+        <input type="date" id="expiry_date" name="expiry_date" required
+               value="{{ form_data.get('expiry_date', asset.expiry_date.isoformat() if asset and asset.expiry_date else '') }}"
+               class="{{ 'input-error' if errors.get('expiry_date') else '' }}">
+        {% if errors.get('expiry_date') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['expiry_date'] }}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="responsible">Ответственный</label>
+        <input type="text" id="responsible" name="responsible"
+               placeholder="ФИО сотрудника"
+               value="{{ form_data.get('responsible', asset.responsible if asset and asset.responsible else '') }}">
+      </div>
+
+      <div class="form-group">
+        <label for="cost">Стоимость</label>
+        <input type="text" id="cost" name="cost"
+               placeholder="Например: 1 500 000 тенге"
+               value="{{ form_data.get('cost', asset.cost if asset and asset.cost else '') }}">
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Комментарий</label>
+        <textarea id="comment" name="comment" rows="3">{{ form_data.get('comment', asset.comment if asset and asset.comment else '') }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="notify_days_before">Порог уведомления (дни)</label>
+        <input type="number" id="notify_days_before" name="notify_days_before" min="1"
+               placeholder="По умолчанию: глобальный порог"
+               value="{{ form_data.get('notify_days_before', asset.notify_days_before if asset and asset.notify_days_before else '') }}"
+               class="{{ 'input-error' if errors.get('notify_days_before') else '' }}">
+        {% if errors.get('notify_days_before') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['notify_days_before'] }}
+        </span>
+        {% endif %}
+        <span class="field-hint">Оставьте пустым для использования глобального порога</span>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+        <a href="{% if product %}/catalog/products/{{ product.id }}{% else %}/catalog{% endif %}" class="btn btn-secondary">Отменить</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

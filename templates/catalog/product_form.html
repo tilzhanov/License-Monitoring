@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — License Monitor{% endblock %}
+
+{% block content %}
+{% set errors = errors or {} %}
+{% set form_data = form_data or {} %}
+<div class="form-container">
+  <div class="breadcrumb">
+    <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+    <a href="/catalog">Каталог</a>
+    <span>/</span>
+    <a href="/catalog/vendors/{{ vendor.id }}">{{ vendor.name }}</a>
+    <span>/</span>
+    <span>{{ title }}</span>
+  </div>
+  <h1>{{ title }}</h1>
+  <div class="form-card">
+    <form method="post" action="{{ action_url }}">
+      <div class="form-group required">
+        <label for="name">Название продукта</label>
+        <input type="text" id="name" name="name" autofocus required
+               placeholder="Например: vCloud Director"
+               value="{{ form_data.get('name', product.name if product else '') }}"
+               class="{{ 'input-error' if errors.get('name') else '' }}">
+        {% if errors.get('name') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['name'] }}
+        </span>
+        {% endif %}
+      </div>
+      <div class="form-group">
+        <label for="description">Описание</label>
+        <textarea id="description" name="description" rows="3"
+                  placeholder="Краткое описание продукта">{{ form_data.get('description', product.description if product and product.description else '') }}</textarea>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+        <a href="{% if product %}/catalog/products/{{ product.id }}{% else %}/catalog/vendors/{{ vendor.id }}{% endif %}" class="btn btn-secondary">Отменить</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vendor.name }} — License Monitor{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+  <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+  <a href="/catalog">Каталог</a>
+  <span>/</span>
+  <span>{{ vendor.name }}</span>
+</div>
+
+<div class="page-header">
+  <div>
+    <h1>{{ vendor.name }}</h1>
+    {% if vendor.description %}
+    <p>{{ vendor.description }}</p>
+    {% endif %}
+  </div>
+  <div class="page-header-actions">
+    <a href="/catalog/vendors/{{ vendor.id }}/edit" class="btn btn-secondary">
+      <svg class="icon" aria-hidden="true"><use href="#icon-pencil"/></svg>
+      Изменить
+    </a>
+    <button hx-delete="/catalog/vendors/{{ vendor.id }}"
+            hx-confirm="Удалить вендора «{{ vendor.name }}»? Все продукты и активы вендора будут удалены."
+            class="btn btn-destructive">
+      <svg class="icon" aria-hidden="true"><use href="#icon-trash-2"/></svg>
+      Удалить
+    </button>
+    <a href="/catalog/vendors/{{ vendor.id }}/products/new" class="btn btn-primary">
+      <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+      Добавить продукт
+    </a>
+  </div>
+</div>
+
+{% if rows %}
+<div class="catalog-grid">
+  {% for row in rows %}
+  <a href="/catalog/products/{{ row.product.id }}" class="catalog-card">
+    <h2>{{ row.product.name }}</h2>
+    {% if row.product.description %}
+    <p class="catalog-card-desc">{{ row.product.description }}</p>
+    {% endif %}
+    <div class="catalog-card-meta">
+      <span class="catalog-card-stat">{{ row.stats.total }} активов</span>
+    </div>
+    <div class="catalog-card-status">
+      {% if row.stats.expired %}
+      <span class="status-badge status-badge-expired">{{ row.stats.expired }} истекло</span>
+      {% endif %}
+      {% if row.stats.warning %}
+      <span class="status-badge status-badge-warning">{{ row.stats.warning }} истекает</span>
+      {% endif %}
+      {% if not row.stats.expired and not row.stats.warning and row.stats.total %}
+      <span class="status-badge status-badge-active">всё ок</span>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <svg class="icon icon-large" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
+  <h2>У вендора нет продуктов</h2>
+  <p>Добавьте первый продукт (например, vCloud Director).</p>
+  <a href="/catalog/vendors/{{ vendor.id }}/products/new" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    Добавить продукт
+  </a>
+</div>
+{% endif %}
+{% endblock %}

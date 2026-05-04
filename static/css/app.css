@@ -251,6 +251,82 @@ main > h1 { margin-bottom: var(--space-2); }
 main > h1 + p { color: var(--text-muted); margin-bottom: var(--space-6); }
 main > h2 { margin: var(--space-7) 0 var(--space-4); }
 
+/* === Page header (catalog/dashboard headings with right-aligned actions) === */
+.page-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-6);
+}
+.page-header > div:first-child { flex: 1; min-width: 0; }
+.page-header h1 { margin: 0 0 var(--space-1); }
+.page-header p { color: var(--text-muted); font-size: var(--text-sm); margin: 0; }
+.page-header-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+/* === Catalog grid (vendors / products as cards) === */
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.catalog-card {
+  display: flex; flex-direction: column; gap: var(--space-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-xs);
+  color: inherit; text-decoration: none;
+  transition: box-shadow 160ms ease-out, transform 160ms ease-out, border-color 160ms ease-out;
+}
+.catalog-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+.catalog-card h2 {
+  font-size: var(--text-base);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+.catalog-card-desc {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.catalog-card-meta {
+  display: flex; gap: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: var(--fw-semibold);
+}
+.catalog-card-status {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  margin-top: auto;
+}
+
+/* Asset-type quick-add buttons on product page */
+.asset-type-actions {
+  display: flex; flex-wrap: wrap; gap: var(--space-2);
+  margin: var(--space-5) 0 var(--space-6);
+}
+.asset-type-actions .btn-primary {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+.asset-type-actions .btn-primary:hover {
+  background: var(--accent-soft);
+  color: var(--accent-600);
+  border-color: var(--accent-600);
+}
+
 /* === Stats cards === */
 .stats-grid {
   display: grid; grid-template-columns: repeat(3, 1fr);

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Каталог — License Monitor{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Каталог</h1>
+    <p>Вендоры → продукты → активы (лицензии, тех.поддержка, SSL)</p>
+  </div>
+  <a href="/catalog/vendors/new" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    Добавить вендора
+  </a>
+</div>
+
+{% if rows %}
+<div class="catalog-grid">
+  {% for row in rows %}
+  <a href="/catalog/vendors/{{ row.vendor.id }}" class="catalog-card">
+    <h2>{{ row.vendor.name }}</h2>
+    {% if row.vendor.description %}
+    <p class="catalog-card-desc">{{ row.vendor.description }}</p>
+    {% endif %}
+    <div class="catalog-card-meta">
+      <span class="catalog-card-stat">{{ row.product_count }} продуктов</span>
+      <span class="catalog-card-stat">{{ row.stats.total }} активов</span>
+    </div>
+    <div class="catalog-card-status">
+      {% if row.stats.expired %}
+      <span class="status-badge status-badge-expired">{{ row.stats.expired }} истекло</span>
+      {% endif %}
+      {% if row.stats.warning %}
+      <span class="status-badge status-badge-warning">{{ row.stats.warning }} истекает</span>
+      {% endif %}
+      {% if not row.stats.expired and not row.stats.warning and row.stats.total %}
+      <span class="status-badge status-badge-active">всё ок</span>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <svg class="icon icon-large" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
+  <h2>Пока нет вендоров</h2>
+  <p>Создайте первого вендора (например, vmware), затем добавьте к нему продукты и активы.</p>
+  <a href="/catalog/vendors/new" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    Добавить вендора
+  </a>
+</div>
+{% endif %}
+{% endblock %}

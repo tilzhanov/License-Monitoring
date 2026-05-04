@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% from "partials/_macros.html" import status_badge %}
+
+{% block title %}{{ product.name }} — License Monitor{% endblock %}
+
+{% set TYPE_LABEL = {
+  'license': 'Лицензии',
+  'support': 'Тех.поддержка',
+  'ssl': 'SSL сертификаты',
+} %}
+
+{% block content %}
+<div class="breadcrumb">
+  <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>
+  <a href="/catalog">Каталог</a>
+  <span>/</span>
+  <a href="/catalog/vendors/{{ vendor.id }}">{{ vendor.name }}</a>
+  <span>/</span>
+  <span>{{ product.name }}</span>
+</div>
+
+<div class="page-header">
+  <div>
+    <h1>{{ product.name }}</h1>
+    {% if product.description %}
+    <p>{{ product.description }}</p>
+    {% endif %}
+  </div>
+  <div class="page-header-actions">
+    <a href="/catalog/products/{{ product.id }}/edit" class="btn btn-secondary">
+      <svg class="icon" aria-hidden="true"><use href="#icon-pencil"/></svg>
+      Изменить
+    </a>
+    <button hx-delete="/catalog/products/{{ product.id }}"
+            hx-confirm="Удалить продукт «{{ product.name }}»? Все активы продукта будут удалены."
+            class="btn btn-destructive">
+      <svg class="icon" aria-hidden="true"><use href="#icon-trash-2"/></svg>
+      Удалить
+    </button>
+  </div>
+</div>
+
+<div class="asset-type-actions">
+  <a href="/catalog/products/{{ product.id }}/assets/new?type=license" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    Лицензия
+  </a>
+  <a href="/catalog/products/{{ product.id }}/assets/new?type=support" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    Тех.поддержка
+  </a>
+  <a href="/catalog/products/{{ product.id }}/assets/new?type=ssl" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
+    SSL сертификат
+  </a>
+</div>
+
+{% for type_key, items in assets_by_type.items() %}
+{% if items %}
+<h2>{{ TYPE_LABEL[type_key] }}</h2>
+<div class="table-container">
+  <table class="license-table">
+    <thead>
+      <tr>
+        <th>Название</th>
+        {% if type_key == 'ssl' %}
+        <th>Домен</th>
+        <th>Issuer</th>
+        {% elif type_key == 'support' %}
+        <th>№ контракта</th>
+        <th>SLA</th>
+        {% endif %}
+        <th>Дата истечения</th>
+        <th>Осталось дней</th>
+        <th>Статус</th>
+        <th>Ответственный</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr class="{{ item.status_class }}">
+        <td class="product-cell">{{ item.license.product_name }}</td>
+        {% if type_key == 'ssl' %}
+        <td>{{ item.license.ssl_domain or '—' }}</td>
+        <td>{{ item.license.ssl_issuer or '—' }}</td>
+        {% elif type_key == 'support' %}
+        <td>{{ item.license.support_contract_no or '—' }}</td>
+        <td>{{ item.license.support_sla or '—' }}</td>
+        {% endif %}
+        <td>{{ item.license.expiry_date.strftime('%d.%m.%Y') }}</td>
+        <td>{{ item.days_remaining }}</td>
+        <td>{{ status_badge(item.status) }}</td>
+        <td>{{ item.license.responsible or '—' }}</td>
+        <td class="actions-cell">
+          <a href="/catalog/assets/{{ item.license.id }}/edit" class="action-link action-edit">
+            <svg class="icon" aria-hidden="true"><use href="#icon-pencil"/></svg>
+            Изменить
+          </a>
+          <button hx-delete="/catalog/assets/{{ item.license.id }}"
+                  hx-confirm="Удалить актив «{{ item.license.product_name }}»?"
+                  class="action-btn action-delete">
+            <svg class="icon" aria-hidden="true"><use href="#icon-trash-2"/></svg>
+            Удалить
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endfor %}
+
+{% if stats.total == 0 %}
+<div class="empty-state">
+  <svg class="icon icon-large" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
+  <h2>У продукта нет активов</h2>
+  <p>Добавьте лицензию, контракт техподдержки или SSL сертификат, чтобы отслеживать сроки.</p>
+</div>
+{% endif %}
+{% endblock %}
