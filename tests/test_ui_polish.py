@@ -26,20 +26,23 @@ def _base() -> str:
 
 
 def test_design_tokens_present():
+    """Phase 5 redesign tokens — Stripe-inspired surfaces, light/dark theme."""
     css = _css()
-    # Spacing scale (12px MUST be absent from scale, only 4/8/16/24/32/48/64)
+    # Spacing scale (4pt base + 8pt rhythm)
     for token in ["--space-1:", "--space-2:", "--space-4:", "--space-5:",
                   "--space-6:", "--space-8:", "--space-10:"]:
         assert token in css, f"missing spacing token {token}"
     # Typography
     for token in ["--font-sans:", "--font-mono:", "--text-xs:", "--text-sm:",
-                  "--text-lg:", "--text-xl:", "--fw-regular:", "--fw-semibold:"]:
+                  "--text-base:", "--text-lg:", "--text-xl:",
+                  "--fw-regular:", "--fw-semibold:"]:
         assert token in css, f"missing typography token {token}"
-    # Slate ramp
-    for token in ["--slate-50:", "--slate-100:", "--slate-200:", "--slate-300:",
-                  "--slate-500:", "--slate-700:", "--slate-900:", "--surface:"]:
-        assert token in css, f"missing slate token {token}"
-    # Accent
+    # Theme-aware surface ramp (replaces slate ramp)
+    for token in ["--surface:", "--surface-raised:", "--surface-sunken:",
+                  "--bg-page:", "--border:", "--text-primary:",
+                  "--text-secondary:", "--text-muted:"]:
+        assert token in css, f"missing surface token {token}"
+    # Accent (theme-aware: light + dark blocks both define it)
     assert "--accent-600:" in css
     assert "--accent-700:" in css
     # Status tokens
@@ -52,10 +55,10 @@ def test_design_tokens_present():
     for token in ["--radius-sm:", "--radius-md:", "--radius-lg:",
                   "--shadow-sm:", "--shadow-focus:"]:
         assert token in css, f"missing radius/shadow token {token}"
-    # Locked HEX values from UI-SPEC §Color
-    for hex_value in ["#0F172A", "#2563EB", "#F8FAFC", "#22C55E",
-                      "#F59E0B", "#EF4444", "#DC2626"]:
-        assert hex_value in css, f"missing locked hex {hex_value}"
+    # Both themes defined
+    assert '[data-theme="dark"]' in css, "dark theme block missing"
+    assert "color-scheme: light" in css
+    assert "color-scheme: dark" in css
 
 
 def test_font_links_in_base():
@@ -103,7 +106,9 @@ def test_status_row_classes_in_css():
     css = _css()
     for selector in ["tr.status-active", "tr.status-warning", "tr.status-expired"]:
         assert selector in css, f"missing row selector {selector}"
-    assert "inset 4px 0 0 0" in css, "status rows must use inset left bar box-shadow"
+    # Status rows use an inset left bar (width may vary across redesigns)
+    assert "inset 3px 0 0 0" in css or "inset 4px 0 0 0" in css, \
+        "status rows must use inset left bar box-shadow"
 
 
 def test_focus_visible_and_reduced_motion_in_css():

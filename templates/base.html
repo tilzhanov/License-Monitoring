@@ -4,23 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}License Monitor{% endblock %}</title>
+  <script>
+    // Apply persisted theme before paint to avoid flash.
+    (function () {
+      try {
+        var t = localStorage.getItem('lm-theme');
+        if (!t) {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <link rel="stylesheet" href="{{ url_for('static', path='/css/app.css') }}">
 </head>
 <body>
   <a href="#main" class="skip-link">Перейти к содержимому</a>
   {% include "partials/icons.html" %}
-  <nav>
+  <nav aria-label="Основная навигация">
     <a href="/" class="nav-brand">
       <svg class="icon" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
       License Monitor
     </a>
     <div class="nav-links">
-      <a href="/" class="current">Дашборд</a>
-      <a href="/settings">Настройки</a>
+      {% set _path = request.url.path if request is defined else '/' %}
+      <a href="/" class="{{ 'current' if _path == '/' or _path.startswith('/licenses') else '' }}">
+        <svg class="icon" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
+        Дашборд
+      </a>
+      <a href="/settings" class="{{ 'current' if _path.startswith('/settings') else '' }}">
+        <svg class="icon" aria-hidden="true"><use href="#icon-settings"/></svg>
+        Настройки
+      </a>
+    </div>
+    <div class="nav-footer">
+      <span class="nav-footer-meta">v1.0.1</span>
+      <button type="button"
+              class="theme-toggle"
+              aria-label="Переключить тему"
+              onclick="(function(){var d=document.documentElement;var n=d.getAttribute('data-theme')==='dark'?'light':'dark';d.setAttribute('data-theme',n);try{localStorage.setItem('lm-theme',n);}catch(e){}})()">
+        <svg class="icon icon-sun" aria-hidden="true"><use href="#icon-sun"/></svg>
+        <svg class="icon icon-moon" aria-hidden="true"><use href="#icon-moon"/></svg>
+      </button>
     </div>
   </nav>
   <main id="main">
