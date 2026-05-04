@@ -62,24 +62,24 @@ def client():
 # ---------- tests ----------
 
 def test_settings_page_renders(client):
-    """GET /settings returns 200 with all four form fields. Covers SETT-01."""
+    """GET /settings returns 200 with non-secret form fields and Telegram status block. Covers SETT-01."""
     response = client.get("/settings")
     assert response.status_code == 200
     body = response.text
     assert "Настройки" in body
-    assert "bot_token" in body
-    assert "chat_id" in body
     assert "notify_days_before" in body
     assert "notify_time" in body
+    # Telegram status block present (read-only); secrets not in form inputs
+    assert "Telegram" in body
+    assert 'name="bot_token"' not in body
+    assert 'name="chat_id"' not in body
 
 
 def test_save_settings(client):
-    """POST /settings saves all four fields; GET /settings returns saved values. Covers SETT-03, NOTF-04, NOTF-06."""
+    """POST /settings saves non-secret fields. Covers SETT-03, NOTF-04, NOTF-06."""
     response = client.post(
         "/settings",
         data={
-            "bot_token": "test123",
-            "chat_id": "-100",
             "notify_days_before": "30",
             "notify_time": "10:00",
         },
@@ -89,8 +89,6 @@ def test_save_settings(client):
     get_response = client.get("/settings")
     assert get_response.status_code == 200
     body = get_response.text
-    assert "test123" in body
-    assert "-100" in body
     assert "30" in body
     assert "10:00" in body
 
@@ -100,8 +98,6 @@ def test_settings_persist_across_requests(client):
     client.post(
         "/settings",
         data={
-            "bot_token": "persistent-token",
-            "chat_id": "-999",
             "notify_days_before": "45",
             "notify_time": "08:30",
         },
@@ -109,8 +105,6 @@ def test_settings_persist_across_requests(client):
     response = client.get("/settings")
     assert response.status_code == 200
     body = response.text
-    assert "persistent-token" in body
-    assert "-999" in body
     assert "45" in body
     assert "08:30" in body
 
@@ -120,17 +114,13 @@ def test_save_settings_invalid_threshold(client):
     response = client.post(
         "/settings",
         data={
-            "bot_token": "tok",
-            "chat_id": "-1",
             "notify_days_before": "abc",
             "notify_time": "09:00",
         },
     )
     assert response.status_code == 200
-    # Should contain an error message about notify_days_before
     body = response.text
     assert "notify_days_before" in body
-    # Values not saved — DB should remain empty
     with Session(test_engine) as session:
         rows = session.query(AppSettings).all()
     assert len(rows) == 0
@@ -141,8 +131,6 @@ def test_save_settings_invalid_time(client):
     response = client.post(
         "/settings",
         data={
-            "bot_token": "tok",
-            "chat_id": "-1",
             "notify_days_before": "30",
             "notify_time": "25:00",
         },
@@ -150,7 +138,6 @@ def test_save_settings_invalid_time(client):
     assert response.status_code == 200
     body = response.text
     assert "notify_time" in body
-    # Values not saved
     with Session(test_engine) as session:
         rows = session.query(AppSettings).all()
     assert len(rows) == 0
@@ -170,8 +157,6 @@ def test_settings_db_over_env_precedence(client):
     client.post(
         "/settings",
         data={
-            "bot_token": "any",
-            "chat_id": "-1",
             "notify_days_before": "45",
             "notify_time": "09:00",
         },
@@ -184,14 +169,12 @@ def test_settings_db_over_env_precedence(client):
 
 # ---------- test notification tests (SETT-02) ----------
 
-def test_test_notification_success(client):
-    """POST /settings/test-notification with valid credentials sends message. Covers SETT-02."""
+def test_test_notification_success(client, monkeypatch):
+    """POST /settings/test-notification with valid env credentials sends message. Covers SETT-02."""
     from unittest.mock import patch
 
-    with Session(test_engine) as session:
-        session.add(AppSettings(key="telegram_bot_token", value="tok123"))
-        session.add(AppSettings(key="telegram_chat_id", value="-100"))
-        session.commit()
+    monkeypatch.setattr("app.routers.settings.TELEGRAM_BOT_TOKEN", "tok123")
+    monkeypatch.setattr("app.routers.settings.TELEGRAM_CHAT_ID", "-100")
 
     with patch("app.routers.settings.send_telegram_message", return_value={"ok": True}):
         response = client.post("/settings/test-notification")
@@ -200,22 +183,23 @@ def test_test_notification_success(client):
     assert "Тестовое уведомление отправлено" in response.text
 
 
-def test_test_notification_no_credentials(client):
-    """POST /settings/test-notification without credentials shows error. Covers SETT-02 error case."""
+def test_test_notification_no_credentials(client, monkeypatch):
+    """POST /settings/test-notification without env credentials shows error. Covers SETT-02 error case."""
+    monkeypatch.setattr("app.routers.settings.TELEGRAM_BOT_TOKEN", "")
+    monkeypatch.setattr("app.routers.settings.TELEGRAM_CHAT_ID", "")
+
     response = client.post("/settings/test-notification")
 
     assert response.status_code == 200
     assert "Сначала настройте" in response.text
 
 
-def test_test_notification_telegram_error(client):
-    """POST /settings/test-notification with Telegram error shows error message. Covers SETT-02."""
+def test_test_notification_telegram_error(client, monkeypatch):
+    """POST /settings/test-notification with Telegram API error shows error message. Covers SETT-02."""
     from unittest.mock import patch
 
-    with Session(test_engine) as session:
-        session.add(AppSettings(key="telegram_bot_token", value="bad_token"))
-        session.add(AppSettings(key="telegram_chat_id", value="-100"))
-        session.commit()
+    monkeypatch.setattr("app.routers.settings.TELEGRAM_BOT_TOKEN", "bad_token")
+    monkeypatch.setattr("app.routers.settings.TELEGRAM_CHAT_ID", "-100")
 
     with patch(
         "app.routers.settings.send_telegram_message",

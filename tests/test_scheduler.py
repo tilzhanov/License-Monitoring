@@ -101,12 +101,10 @@ def test_reschedule_digest():
 # send_daily_digest tests
 # ---------------------------------------------------------------------------
 
-def test_send_daily_digest_skips_no_token(scheduler_engine):
-    """send_daily_digest returns early when bot_token is empty (D-11)."""
-    _seed(scheduler_engine, {
-        "telegram_bot_token": "",
-        "telegram_chat_id": "-100123",
-    })
+def test_send_daily_digest_skips_no_token(scheduler_engine, monkeypatch):
+    """send_daily_digest returns early when env bot_token is empty (D-11)."""
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_BOT_TOKEN", "")
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_CHAT_ID", "-100123")
 
     with patch("app.services.scheduler.engine", scheduler_engine), \
          patch("app.services.scheduler.send_telegram_message") as mock_send:
@@ -115,12 +113,10 @@ def test_send_daily_digest_skips_no_token(scheduler_engine):
     mock_send.assert_not_called()
 
 
-def test_send_daily_digest_skips_no_chat_id(scheduler_engine):
-    """send_daily_digest returns early when chat_id is empty (D-11)."""
-    _seed(scheduler_engine, {
-        "telegram_bot_token": "valid_token",
-        "telegram_chat_id": "",
-    })
+def test_send_daily_digest_skips_no_chat_id(scheduler_engine, monkeypatch):
+    """send_daily_digest returns early when env chat_id is empty (D-11)."""
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_BOT_TOKEN", "valid_token")
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_CHAT_ID", "")
 
     with patch("app.services.scheduler.engine", scheduler_engine), \
          patch("app.services.scheduler.send_telegram_message") as mock_send:
@@ -129,14 +125,11 @@ def test_send_daily_digest_skips_no_chat_id(scheduler_engine):
     mock_send.assert_not_called()
 
 
-def test_send_daily_digest_skips_empty_digest(scheduler_engine):
+def test_send_daily_digest_skips_empty_digest(scheduler_engine, monkeypatch):
     """send_daily_digest sends nothing when no qualifying licenses exist (D-04)."""
-    # Seed credentials but NO licenses in DB
-    _seed(scheduler_engine, {
-        "telegram_bot_token": "valid_token",
-        "telegram_chat_id": "-100123",
-        "notify_days_before": "30",
-    })
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_BOT_TOKEN", "valid_token")
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_CHAT_ID", "-100123")
+    _seed(scheduler_engine, {"notify_days_before": "30"})
 
     with patch("app.services.scheduler.engine", scheduler_engine), \
          patch("app.services.scheduler.send_telegram_message") as mock_send:
@@ -145,16 +138,14 @@ def test_send_daily_digest_skips_empty_digest(scheduler_engine):
     mock_send.assert_not_called()
 
 
-def test_send_daily_digest_sends_message(scheduler_engine):
-    """send_daily_digest calls send_telegram_message with token, chat_id, and digest string."""
-    expiry = date.today() + timedelta(days=5)  # within 30-day threshold → warning
+def test_send_daily_digest_sends_message(scheduler_engine, monkeypatch):
+    """send_daily_digest calls send_telegram_message with env token, chat_id, and digest string."""
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_BOT_TOKEN", "test_token")
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_CHAT_ID", "-100456")
+    expiry = date.today() + timedelta(days=5)
     _seed(
         scheduler_engine,
-        settings={
-            "telegram_bot_token": "test_token",
-            "telegram_chat_id": "-100456",
-            "notify_days_before": "30",
-        },
+        settings={"notify_days_before": "30"},
         licenses=[{
             "product_name": "vCenter 7.0",
             "purchase_date": date.today() - timedelta(days=365),
@@ -175,16 +166,14 @@ def test_send_daily_digest_sends_message(scheduler_engine):
     assert len(call_args[2]) > 0
 
 
-def test_send_daily_digest_updates_last_sent_timestamp(scheduler_engine):
+def test_send_daily_digest_updates_last_sent_timestamp(scheduler_engine, monkeypatch):
     """send_daily_digest stores last_digest_sent in AppSettings after successful send."""
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_BOT_TOKEN", "test_token")
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_CHAT_ID", "-100456")
     expiry = date.today() + timedelta(days=5)
     _seed(
         scheduler_engine,
-        settings={
-            "telegram_bot_token": "test_token",
-            "telegram_chat_id": "-100456",
-            "notify_days_before": "30",
-        },
+        settings={"notify_days_before": "30"},
         licenses=[{
             "product_name": "Veeam Backup",
             "purchase_date": date.today() - timedelta(days=200),
@@ -199,19 +188,17 @@ def test_send_daily_digest_updates_last_sent_timestamp(scheduler_engine):
     with Session(scheduler_engine) as db:
         row = db.query(AppSettings).filter_by(key="last_digest_sent").first()
     assert row is not None
-    assert row.value  # non-empty ISO timestamp
+    assert row.value
 
 
-def test_send_daily_digest_no_timestamp_on_failed_send(scheduler_engine):
+def test_send_daily_digest_no_timestamp_on_failed_send(scheduler_engine, monkeypatch):
     """send_daily_digest does NOT update last_digest_sent when Telegram returns error."""
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_BOT_TOKEN", "bad_token")
+    monkeypatch.setattr("app.services.scheduler.TELEGRAM_CHAT_ID", "-100456")
     expiry = date.today() + timedelta(days=5)
     _seed(
         scheduler_engine,
-        settings={
-            "telegram_bot_token": "bad_token",
-            "telegram_chat_id": "-100456",
-            "notify_days_before": "30",
-        },
+        settings={"notify_days_before": "30"},
         licenses=[{
             "product_name": "Veeam Backup",
             "purchase_date": date.today() - timedelta(days=200),

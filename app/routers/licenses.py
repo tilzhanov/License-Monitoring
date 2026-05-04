@@ -16,11 +16,13 @@ def _validate_license_form(
     product_name: str,
     purchase_date_str: str,
     expiry_date_str: str,
-) -> tuple[dict[str, str], Optional[date], Optional[date]]:
-    """Validate license form fields. Returns (errors, parsed_purchase_date, parsed_expiry_date)."""
+    notify_days_before_str: str = "",
+) -> tuple[dict[str, str], Optional[date], Optional[date], Optional[int]]:
+    """Validate license form fields. Returns (errors, purchase_date, expiry_date, notify_days)."""
     errors: dict[str, str] = {}
     parsed_purchase: Optional[date] = None
     parsed_expiry: Optional[date] = None
+    parsed_notify: Optional[int] = None
 
     if not product_name.strip():
         errors["product_name"] = "Укажите название продукта"
@@ -44,7 +46,17 @@ def _validate_license_form(
     if parsed_purchase and parsed_expiry and parsed_expiry < parsed_purchase:
         errors["expiry_date"] = "Дата истечения не может быть раньше даты покупки"
 
-    return errors, parsed_purchase, parsed_expiry
+    if notify_days_before_str.strip():
+        try:
+            n = int(notify_days_before_str)
+            if n <= 0:
+                errors["notify_days_before"] = "Укажите положительное целое число"
+            else:
+                parsed_notify = n
+        except ValueError:
+            errors["notify_days_before"] = "Укажите положительное целое число"
+
+    return errors, parsed_purchase, parsed_expiry, parsed_notify
 
 
 @router.get("/licenses/new", response_class=HTMLResponse)
@@ -102,8 +114,8 @@ def create_license(
     comment: str = Form(""),
     notify_days_before: str = Form(""),
 ):
-    errors, parsed_purchase, parsed_expiry = _validate_license_form(
-        product_name, purchase_date, expiry_date,
+    errors, parsed_purchase, parsed_expiry, parsed_notify = _validate_license_form(
+        product_name, purchase_date, expiry_date, notify_days_before,
     )
 
     if errors:
@@ -129,8 +141,6 @@ def create_license(
                 "form_data": form_data,
             },
         )
-
-    parsed_notify = int(notify_days_before) if notify_days_before.strip() else None
 
     license_obj = License(
         product_name=product_name.strip(),
@@ -184,8 +194,8 @@ def update_license(
     if not license_obj:
         raise HTTPException(status_code=404, detail="License not found")
 
-    errors, parsed_purchase, parsed_expiry = _validate_license_form(
-        product_name, purchase_date, expiry_date,
+    errors, parsed_purchase, parsed_expiry, parsed_notify = _validate_license_form(
+        product_name, purchase_date, expiry_date, notify_days_before,
     )
 
     if errors:
@@ -211,8 +221,6 @@ def update_license(
                 "form_data": form_data,
             },
         )
-
-    parsed_notify = int(notify_days_before) if notify_days_before.strip() else None
 
     license_obj.product_name = product_name.strip()
     license_obj.purchase_date = parsed_purchase

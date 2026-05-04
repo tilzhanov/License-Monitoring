@@ -22,7 +22,7 @@ def send_telegram_message(token: str, chat_id: str, text: str) -> dict:
     NOTE: Never logs the full URL — it contains the token.
     """
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {"chat_id": chat_id, "text": text}
+    payload = {"chat_id": chat_id, "text": text, "parse_mode": "HTML"}
 
     try:
         with httpx.Client(timeout=10.0) as client:

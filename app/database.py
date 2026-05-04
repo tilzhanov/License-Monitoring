@@ -36,20 +36,24 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def bootstrap_settings():
-    """Write Telegram credentials from .env to app_settings on first run only (D-09)."""
+    """Seed non-secret defaults on first run.
+
+    Telegram secrets (token, chat_id) are NEVER written to the DB — source of truth
+    is .env (config module). Removes any pre-existing rows to migrate older installs.
+    """
     from app.models import AppSettings
-    from app.config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
     with Session(engine) as db:
-        existing = db.query(AppSettings).first()
-        if existing is not None:
-            return
+        # Migration: drop secrets that older versions wrote to DB
+        db.query(AppSettings).filter(
+            AppSettings.key.in_(["telegram_bot_token", "telegram_chat_id"])
+        ).delete(synchronize_session=False)
 
-        defaults = [
-            AppSettings(key="telegram_bot_token", value=TELEGRAM_BOT_TOKEN),
-            AppSettings(key="telegram_chat_id", value=TELEGRAM_CHAT_ID),
-            AppSettings(key="notify_days_before", value="60"),
-            AppSettings(key="notifications_enabled", value="true"),
-        ]
-        db.add_all(defaults)
+        existing_keys = {row.key for row in db.query(AppSettings).all()}
+        for key, value in [
+            ("notify_days_before", "60"),
+            ("notifications_enabled", "true"),
+        ]:
+            if key not in existing_keys:
+                db.add(AppSettings(key=key, value=value))
         db.commit()

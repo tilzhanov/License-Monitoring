@@ -101,16 +101,9 @@ def test_wal_mode(tmp_path):
     eng.dispose()
 
 
-def test_bootstrap_settings_inserts_defaults(test_engine, monkeypatch):
-    """bootstrap_settings() writes 4 rows to empty app_settings (D-09)."""
+def test_bootstrap_settings_inserts_non_secret_defaults(test_engine, monkeypatch):
+    """bootstrap_settings() writes only non-secret defaults; secrets stay in .env."""
     monkeypatch.setattr("app.database.engine", test_engine)
-    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "test-token-123")
-    monkeypatch.setenv("TELEGRAM_CHAT_ID", "-100123")
-
-    # Re-import to pick up monkeypatched env
-    import importlib
-    import app.config
-    importlib.reload(app.config)
 
     from app.database import bootstrap_settings
     bootstrap_settings()
@@ -119,20 +112,20 @@ def test_bootstrap_settings_inserts_defaults(test_engine, monkeypatch):
         rows = session.query(AppSettings).all()
         keys = {r.key: r.value for r in rows}
 
-    assert len(keys) == 4
-    assert keys["telegram_bot_token"] == "test-token-123"
-    assert keys["telegram_chat_id"] == "-100123"
+    assert "telegram_bot_token" not in keys
+    assert "telegram_chat_id" not in keys
     assert keys["notify_days_before"] == "60"
     assert keys["notifications_enabled"] == "true"
 
 
-def test_bootstrap_settings_skips_if_data_exists(test_engine, monkeypatch):
-    """bootstrap_settings() does NOT overwrite existing rows (D-09 guard)."""
+def test_bootstrap_settings_purges_legacy_secrets(test_engine, monkeypatch):
+    """bootstrap_settings() removes telegram_* rows written by older versions."""
     monkeypatch.setattr("app.database.engine", test_engine)
 
-    # Pre-populate with one row
     with Session(test_engine) as session:
-        session.add(AppSettings(key="telegram_bot_token", value="user-set-token"))
+        session.add(AppSettings(key="telegram_bot_token", value="legacy-token"))
+        session.add(AppSettings(key="telegram_chat_id", value="-100"))
+        session.add(AppSettings(key="notify_days_before", value="45"))
         session.commit()
 
     from app.database import bootstrap_settings
@@ -142,6 +135,7 @@ def test_bootstrap_settings_skips_if_data_exists(test_engine, monkeypatch):
         rows = session.query(AppSettings).all()
         keys = {r.key: r.value for r in rows}
 
-    # Should still have only the one pre-existing row
-    assert len(keys) == 1
-    assert keys["telegram_bot_token"] == "user-set-token"
+    assert "telegram_bot_token" not in keys
+    assert "telegram_chat_id" not in keys
+    assert keys["notify_days_before"] == "45"  # user value preserved
+    assert keys["notifications_enabled"] == "true"  # default added

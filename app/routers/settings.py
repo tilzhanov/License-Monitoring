@@ -1,5 +1,7 @@
+import logging
 import re
 
+from apscheduler.jobstores.base import JobLookupError
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
@@ -10,6 +12,8 @@ from app.models import AppSettings
 from app.templates import templates
 from app.services.scheduler import reschedule_digest
 from app.services.telegram import send_telegram_message
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["settings"])
 
@@ -32,11 +36,21 @@ def save_setting(db: Session, key: str, value: str) -> None:
     db.commit()
 
 
+def _telegram_status() -> dict:
+    """Return read-only Telegram credential status from .env (never DB)."""
+    token_set = bool(TELEGRAM_BOT_TOKEN)
+    chat_set = bool(TELEGRAM_CHAT_ID)
+    return {
+        "token_configured": token_set,
+        "chat_configured": chat_set,
+        "token_masked": (TELEGRAM_BOT_TOKEN[:4] + "…" + TELEGRAM_BOT_TOKEN[-4:]) if token_set and len(TELEGRAM_BOT_TOKEN) >= 8 else "",
+        "chat_masked": TELEGRAM_CHAT_ID if chat_set else "",
+    }
+
+
 @router.get("/settings", response_class=HTMLResponse)
 def settings_page(request: Request, db: SessionDep):
-    """Render settings page with current values from DB (falling back to env/defaults)."""
-    bot_token = get_setting(db, "telegram_bot_token", TELEGRAM_BOT_TOKEN)
-    chat_id = get_setting(db, "telegram_chat_id", TELEGRAM_CHAT_ID)
+    """Render settings page. Telegram secrets read-only from .env; thresholds from DB."""
     notify_days_before = get_setting(db, "notify_days_before", str(NOTIFY_DAYS_BEFORE))
     notify_time = get_setting(db, "notify_time", "09:00")
 
@@ -44,10 +58,9 @@ def settings_page(request: Request, db: SessionDep):
         request=request,
         name="settings.html",
         context={
-            "bot_token": bot_token,
-            "chat_id": chat_id,
             "notify_days_before": notify_days_before,
             "notify_time": notify_time,
+            "telegram": _telegram_status(),
             "errors": {},
             "success": False,
             "success_message": "",
@@ -59,15 +72,12 @@ def settings_page(request: Request, db: SessionDep):
 def save_settings(
     request: Request,
     db: SessionDep,
-    bot_token: str = Form(""),
-    chat_id: str = Form(""),
     notify_days_before: str = Form("60"),
     notify_time: str = Form("09:00"),
 ):
-    """Save settings to AppSettings table; return HTMX-swappable form fragment."""
+    """Save non-secret settings; return HTMX-swappable form fragment."""
     errors: dict[str, str] = {}
 
-    # Validate notify_days_before: must be a positive integer
     try:
         days_val = int(notify_days_before)
         if days_val <= 0:
@@ -75,7 +85,6 @@ def save_settings(
     except (ValueError, TypeError):
         errors["notify_days_before"] = "Укажите положительное целое число"
 
-    # Validate notify_time: must match HH:MM with valid hour (0-23) and minute (0-59)
     time_match = re.match(r"^(\d{2}):(\d{2})$", notify_time)
     if not time_match:
         errors["notify_time"] = "Укажите время в формате ЧЧ:ММ"
@@ -89,36 +98,32 @@ def save_settings(
             request=request,
             name="partials/settings_form.html",
             context={
-                "bot_token": bot_token,
-                "chat_id": chat_id,
                 "notify_days_before": notify_days_before,
                 "notify_time": notify_time,
+                "telegram": _telegram_status(),
                 "errors": errors,
                 "success": False,
                 "success_message": "",
             },
         )
 
-    save_setting(db, "telegram_bot_token", bot_token)
-    save_setting(db, "telegram_chat_id", chat_id)
     save_setting(db, "notify_days_before", notify_days_before)
     save_setting(db, "notify_time", notify_time)
 
-    # D-07: reschedule the daily digest job when notify_time changes
     h, m = int(notify_time.split(":")[0]), int(notify_time.split(":")[1])
     try:
         reschedule_digest(h, m)
-    except Exception:
-        pass  # Scheduler may not be running in tests — safe to skip
+    except JobLookupError:
+        # Scheduler running but job not registered (e.g. test env) — safe to ignore.
+        logger.debug("daily_digest job not registered; skipping reschedule")
 
     return templates.TemplateResponse(
         request=request,
         name="partials/settings_form.html",
         context={
-            "bot_token": bot_token,
-            "chat_id": chat_id,
             "notify_days_before": notify_days_before,
             "notify_time": notify_time,
+            "telegram": _telegram_status(),
             "errors": {},
             "success": True,
             "success_message": "Настройки сохранены",
@@ -127,14 +132,14 @@ def save_settings(
 
 
 @router.post("/settings/test-notification", response_class=HTMLResponse)
-def test_notification(db: SessionDep):
-    """Send a test Telegram message and return an inline HTML result fragment."""
-    token = get_setting(db, "telegram_bot_token", "")
-    chat_id = get_setting(db, "telegram_chat_id", "")
+def test_notification():
+    """Send a test Telegram message using credentials from .env. Returns inline HTML."""
+    token = TELEGRAM_BOT_TOKEN
+    chat_id = TELEGRAM_CHAT_ID
 
     if not token or not chat_id:
         return HTMLResponse(
-            content='<div class="alert alert-error">Сначала настройте токен бота и Chat ID</div>'
+            content='<div class="alert alert-error">Сначала настройте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID в .env</div>'
         )
 
     result = send_telegram_message(token, chat_id, "License Monitor: тестовое уведомление отправлено успешно.")
@@ -143,8 +148,8 @@ def test_notification(db: SessionDep):
         return HTMLResponse(
             content='<div class="alert alert-success">Тестовое уведомление отправлено</div>'
         )
-    else:
-        error_text = result.get("error", "Неизвестная ошибка")
-        return HTMLResponse(
-            content=f'<div class="alert alert-error">Ошибка: {error_text}</div>'
-        )
+
+    error_text = result.get("error", "Неизвестная ошибка")
+    return HTMLResponse(
+        content=f'<div class="alert alert-error">Ошибка: {error_text}</div>'
+    )
