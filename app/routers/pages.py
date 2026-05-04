@@ -50,6 +50,35 @@ def index(request: Request, db: SessionDep):
     )
 
 
+def _query_and_sort(
+    db,
+    product: Optional[str],
+    status: Optional[str],
+    sort: str,
+    order: str,
+) -> list:
+    """Shared filter+sort pipeline for license table partials."""
+    global_threshold = get_global_threshold(db)
+    query = db.query(License)
+
+    if product:
+        query = query.filter(License.product_name.ilike(f"%{product}%"))
+
+    licenses = query.all()
+    enriched = enrich_licenses(licenses, global_threshold)
+
+    if status:
+        enriched = [e for e in enriched if e["status"] == status]
+
+    sort_key_map = {
+        "expiry_date": lambda e: e["license"].expiry_date,
+        "product_name": lambda e: e["license"].product_name.lower(),
+    }
+    sort_fn = sort_key_map.get(sort, sort_key_map["expiry_date"])
+    enriched.sort(key=sort_fn, reverse=(order == "desc"))
+    return enriched
+
+
 @router.get("/licenses/table", response_class=HTMLResponse)
 def license_table(
     request: Request,
@@ -59,32 +88,34 @@ def license_table(
     sort: str = Query("expiry_date"),
     order: str = Query("asc"),
 ):
-    """HTMX partial: returns filtered/sorted tbody rows for the license table."""
-    global_threshold = get_global_threshold(db)
-    query = db.query(License)
-
-    # Filter by product name -- case-insensitive LIKE
-    if product:
-        query = query.filter(License.product_name.ilike(f"%{product}%"))
-
-    licenses = query.all()
-    enriched = enrich_licenses(licenses, global_threshold)
-
-    # Filter by computed status
-    if status:
-        enriched = [e for e in enriched if e["status"] == status]
-
-    # Sort
-    sort_key_map = {
-        "expiry_date": lambda e: e["license"].expiry_date,
-        "product_name": lambda e: e["license"].product_name.lower(),
-    }
-    sort_fn = sort_key_map.get(sort, sort_key_map["expiry_date"])
-    enriched.sort(key=sort_fn, reverse=(order == "desc"))
-
+    """HTMX partial: filtered/sorted tbody rows. Used by filter inputs."""
+    enriched = _query_and_sort(db, product, status, sort, order)
     return templates.TemplateResponse(
         request=request,
         name="partials/license_table.html",
+        context={
+            "licenses": enriched,
+            "current_sort": sort,
+            "current_order": order,
+        },
+    )
+
+
+@router.get("/licenses/table/full", response_class=HTMLResponse)
+def license_table_full(
+    request: Request,
+    db: SessionDep,
+    product: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    sort: str = Query("expiry_date"),
+    order: str = Query("asc"),
+):
+    """HTMX partial: full table (thead + tbody). Used by sort-header clicks
+    so chevron indicators and toggle URLs re-render with new state."""
+    enriched = _query_and_sort(db, product, status, sort, order)
+    return templates.TemplateResponse(
+        request=request,
+        name="partials/license_table_full.html",
         context={
             "licenses": enriched,
             "current_sort": sort,

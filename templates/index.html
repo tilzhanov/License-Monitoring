@@ -88,47 +88,7 @@
   </a>
 </div>
 
-<div class="table-container">
-  <table class="license-table">
-    <thead>
-      <tr>
-        <th role="button" tabindex="0"
-            hx-get="/licenses/table?sort=product_name&order={% if current_sort == 'product_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
-            hx-target="#license-tbody"
-            hx-include="[name='product'],[name='status']">
-          Продукт
-          {% if current_sort == 'product_name' %}
-            {% if current_order == 'asc' %}
-              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-up"/></svg>
-            {% else %}
-              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-down"/></svg>
-            {% endif %}
-          {% endif %}
-        </th>
-        <th role="button" tabindex="0"
-            hx-get="/licenses/table?sort=expiry_date&order={% if current_sort == 'expiry_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
-            hx-target="#license-tbody"
-            hx-include="[name='product'],[name='status']">
-          Дата истечения
-          {% if current_sort == 'expiry_date' %}
-            {% if current_order == 'asc' %}
-              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-up"/></svg>
-            {% else %}
-              <svg class="icon sort-icon" aria-hidden="true"><use href="#icon-chevron-down"/></svg>
-            {% endif %}
-          {% endif %}
-        </th>
-        <th>Осталось дней</th>
-        <th>Статус</th>
-        <th>Ответственный</th>
-        <th>Действия</th>
-      </tr>
-    </thead>
-    <tbody id="license-tbody">
-      {% include "partials/license_table.html" %}
-    </tbody>
-  </table>
-</div>
+{% include "partials/license_table_full.html" %}
 {% else %}
 <div class="empty-state">
   <svg class="icon icon-large" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>

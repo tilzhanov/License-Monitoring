@@ -194,19 +194,21 @@ def test_index_expiring_widget_has_alert_icon():
 
 
 def test_index_table_container_wrapper():
-    html = _index()
-    assert 'class="table-container"' in html
-    assert 'class="license-table"' in html
+    # Table moved to partials/license_table_full.html so it can be re-rendered
+    # on sort-header clicks (Phase 5). Wrapper class still present.
+    full_partial = (ROOT / "templates" / "partials" / "license_table_full.html").read_text(encoding="utf-8")
+    assert 'class="table-container"' in full_partial
+    assert 'class="license-table"' in full_partial
 
 
 def test_index_sortable_th_keyboard_and_chevrons():
-    html = _index()
-    assert 'role="button"' in html
-    assert 'tabindex="0"' in html
-    assert 'href="#icon-chevron-up"' in html
-    assert 'href="#icon-chevron-down"' in html
-    assert "&#9650;" not in html
-    assert "&#9660;" not in html
+    full_partial = (ROOT / "templates" / "partials" / "license_table_full.html").read_text(encoding="utf-8")
+    assert 'role="button"' in full_partial
+    assert 'tabindex="0"' in full_partial
+    assert 'href="#icon-chevron-up"' in full_partial
+    assert 'href="#icon-chevron-down"' in full_partial
+    assert "&#9650;" not in full_partial
+    assert "&#9660;" not in full_partial
 
 
 def test_index_filter_search_icon_and_plus_button():
