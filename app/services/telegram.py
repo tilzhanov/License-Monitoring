@@ -3,6 +3,13 @@
 import html
 import httpx
 
+_TYPE_EMOJI = {
+    "license": "\U0001f4dc",  # 📜
+    "support": "\U0001f6e0",  # 🛠
+    "ssl": "\U0001f512",      # 🔒
+}
+
+
 # Russian error messages for Telegram API error codes
 _ERROR_MESSAGES = {
     401: "Неверный токен бота",
@@ -54,13 +61,14 @@ def format_license_line(enriched_item: dict) -> str:
     days = enriched_item["days_remaining"]
     date_str = lic.expiry_date.strftime("%d.%m.%Y")
     product = html.escape(lic.product_name)
-    line = f"\u2022 {product} \u2014 {date_str} ({days} \u0434\u043d.) "
+    asset_type = getattr(lic, "asset_type", "license") or "license"
+    emoji = _TYPE_EMOJI.get(asset_type, "\u2022")
+    line = f"{emoji} {product} \u2014 {date_str} ({days} \u0434\u043d.) "
 
     if lic.responsible:
         responsible = html.escape(lic.responsible)
         line += f"\u2014 {responsible}"
     else:
-        # Strip trailing space if no responsible
         line = line.rstrip()
 
     return line
