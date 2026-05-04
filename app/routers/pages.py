@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.database import SessionDep
-from app.models import License
+from app.models import Asset, License, Vendor
 from app.services.status import enrich_licenses, get_global_threshold
 from app.templates import templates
 
@@ -19,21 +19,41 @@ def health():
 @router.get("/", response_class=HTMLResponse)
 def index(request: Request, db: SessionDep):
     global_threshold = get_global_threshold(db)
-    licenses = db.query(License).all()
-    enriched = enrich_licenses(licenses, global_threshold)
+    assets = db.query(Asset).all()
+    enriched = enrich_licenses(assets, global_threshold)
 
     total = len(enriched)
     expiring = sum(1 for e in enriched if e["status"] == "warning")
     expired_count = sum(1 for e in enriched if e["status"] == "expired")
 
-    # Expiring soon widget: warning licenses sorted by days_remaining asc, top 10
     expiring_soon = sorted(
         [e for e in enriched if e["status"] == "warning"],
         key=lambda e: e["days_remaining"],
     )[:10]
 
-    # Default sort: expiry_date ascending
     sorted_licenses = sorted(enriched, key=lambda e: e["license"].expiry_date)
+
+    # Vendor aggregates — top-level summary cards on dashboard
+    vendor_rows = []
+    vendors = db.query(Vendor).order_by(Vendor.name).all()
+    for v in vendors:
+        product_ids = [p.id for p in v.products]
+        if product_ids:
+            v_assets = db.query(Asset).filter(Asset.product_id.in_(product_ids)).all()
+        else:
+            v_assets = []
+        v_enriched = enrich_licenses(v_assets, global_threshold)
+        vendor_rows.append({
+            "vendor": v,
+            "product_count": len(v.products),
+            "stats": {
+                "total": len(v_enriched),
+                "warning": sum(1 for e in v_enriched if e["status"] == "warning"),
+                "expired": sum(1 for e in v_enriched if e["status"] == "expired"),
+            },
+        })
+
+    orphan_count = sum(1 for a in assets if a.product_id is None)
 
     return templates.TemplateResponse(
         request=request,
@@ -46,6 +66,8 @@ def index(request: Request, db: SessionDep):
             "licenses": sorted_licenses,
             "current_sort": "expiry_date",
             "current_order": "asc",
+            "vendor_rows": vendor_rows,
+            "orphan_count": orphan_count,
         },
     )
 

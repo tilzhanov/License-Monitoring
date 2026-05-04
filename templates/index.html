@@ -4,7 +4,12 @@
 {% block title %}License Monitor — Дашборд{% endblock %}
 
 {% block content %}
-<h1>Мониторинг лицензий</h1>
+<div class="page-header">
+  <div>
+    <h1>Мониторинг активов</h1>
+    <p>Лицензии, контракты тех.поддержки и SSL сертификаты — общий обзор и статусы по вендорам.</p>
+  </div>
+</div>
 
 {# Stats cards — label first, then count (spec §Component 3). Class strings
    "stat-card total", "stat-card warning", "stat-card expired" are pinned by
@@ -57,7 +62,36 @@
   {% endif %}
 </section>
 
-<h2>Все лицензии</h2>
+{% if vendor_rows %}
+<h2>По вендорам</h2>
+<div class="catalog-grid">
+  {% for row in vendor_rows %}
+  <a href="/catalog/vendors/{{ row.vendor.id }}" class="catalog-card">
+    <h2>{{ row.vendor.name }}</h2>
+    {% if row.vendor.description %}
+    <p class="catalog-card-desc">{{ row.vendor.description }}</p>
+    {% endif %}
+    <div class="catalog-card-meta">
+      <span class="catalog-card-stat">{{ row.product_count }} продуктов</span>
+      <span class="catalog-card-stat">{{ row.stats.total }} активов</span>
+    </div>
+    <div class="catalog-card-status">
+      {% if row.stats.expired %}
+      <span class="status-badge status-badge-expired">{{ row.stats.expired }} истекло</span>
+      {% endif %}
+      {% if row.stats.warning %}
+      <span class="status-badge status-badge-warning">{{ row.stats.warning }} истекает</span>
+      {% endif %}
+      {% if not row.stats.expired and not row.stats.warning and row.stats.total %}
+      <span class="status-badge status-badge-active">всё ок</span>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<h2>Все активы{% if orphan_count and vendor_rows %} <span class="heading-hint">(включая {{ orphan_count }} без продукта)</span>{% endif %}</h2>
 
 {% if licenses %}
 <div class="filter-controls">

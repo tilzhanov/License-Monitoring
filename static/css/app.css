@@ -310,6 +310,13 @@ main > h2 { margin: var(--space-7) 0 var(--space-4); }
   margin-top: auto;
 }
 
+.heading-hint {
+  font-size: var(--text-sm);
+  font-weight: var(--fw-regular);
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
 /* Asset-type quick-add buttons on product page */
 .asset-type-actions {
   display: flex; flex-wrap: wrap; gap: var(--space-2);
