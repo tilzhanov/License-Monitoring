@@ -128,6 +128,21 @@
       </div>
 
       <div class="form-group">
+        <label for="document_url">Ссылка на документ</label>
+        <input type="url" id="document_url" name="document_url"
+               placeholder="https://sharepoint.example.com/contracts/…"
+               value="{{ form_data.get('document_url', asset.document_url if asset and asset.document_url else '') }}"
+               class="{{ 'input-error' if errors.get('document_url') else '' }}">
+        {% if errors.get('document_url') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['document_url'] }}
+        </span>
+        {% endif %}
+        <span class="field-hint">Ссылка на договор, datasheet или любой внешний документ (SharePoint, Confluence, Drive)</span>
+      </div>
+
+      <div class="form-group">
         <label for="notify_days_before">Порог уведомления (дни)</label>
         <input type="number" id="notify_days_before" name="notify_days_before" min="1"
                placeholder="По умолчанию: глобальный порог"

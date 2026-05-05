@@ -39,6 +39,18 @@
 
       <span class="detail-label">Стоимость</span>
       <span class="detail-value">{{ license.cost or '—' }}</span>
+
+      <span class="detail-label">Документ</span>
+      <span class="detail-value">
+        {% if license.document_url %}
+        <a href="{{ license.document_url }}" target="_blank" rel="noopener noreferrer" class="doc-link">
+          <svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg>
+          Открыть документ
+        </a>
+        {% else %}
+        —
+        {% endif %}
+      </span>
     </div>
 
     {% if license.comment %}

@@ -102,6 +102,16 @@ def license_detail(license_id: int, request: Request, db: SessionDep):
     )
 
 
+def _doc_url_error(value: str) -> Optional[str]:
+    """Return validation error for document_url (None if valid/empty)."""
+    v = value.strip()
+    if not v:
+        return None
+    if not (v.startswith("http://") or v.startswith("https://")):
+        return "Ссылка должна начинаться с http:// или https://"
+    return None
+
+
 @router.post("/licenses", response_class=HTMLResponse)
 def create_license(
     request: Request,
@@ -113,10 +123,14 @@ def create_license(
     cost: str = Form(""),
     comment: str = Form(""),
     notify_days_before: str = Form(""),
+    document_url: str = Form(""),
 ):
     errors, parsed_purchase, parsed_expiry, parsed_notify = _validate_license_form(
         product_name, purchase_date, expiry_date, notify_days_before,
     )
+    doc_err = _doc_url_error(document_url)
+    if doc_err:
+        errors["document_url"] = doc_err
 
     if errors:
         form_data = {
@@ -127,6 +141,7 @@ def create_license(
             "cost": cost,
             "comment": comment,
             "notify_days_before": notify_days_before,
+            "document_url": document_url,
         }
         return templates.TemplateResponse(
             request=request,
@@ -150,6 +165,7 @@ def create_license(
         cost=cost.strip() or None,
         comment=comment.strip() or None,
         notify_days_before=parsed_notify,
+        document_url=document_url.strip() or None,
     )
     db.add(license_obj)
     db.commit()
@@ -189,6 +205,7 @@ def update_license(
     cost: str = Form(""),
     comment: str = Form(""),
     notify_days_before: str = Form(""),
+    document_url: str = Form(""),
 ):
     license_obj = db.get(License, license_id)
     if not license_obj:
@@ -197,6 +214,9 @@ def update_license(
     errors, parsed_purchase, parsed_expiry, parsed_notify = _validate_license_form(
         product_name, purchase_date, expiry_date, notify_days_before,
     )
+    doc_err = _doc_url_error(document_url)
+    if doc_err:
+        errors["document_url"] = doc_err
 
     if errors:
         form_data = {
@@ -207,6 +227,7 @@ def update_license(
             "cost": cost,
             "comment": comment,
             "notify_days_before": notify_days_before,
+            "document_url": document_url,
         }
         return templates.TemplateResponse(
             request=request,
@@ -229,6 +250,7 @@ def update_license(
     license_obj.cost = cost.strip() or None
     license_obj.comment = comment.strip() or None
     license_obj.notify_days_before = parsed_notify
+    license_obj.document_url = document_url.strip() or None
     db.commit()
     return RedirectResponse(url="/", status_code=303)
 

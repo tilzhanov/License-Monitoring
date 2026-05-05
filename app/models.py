@@ -64,6 +64,10 @@ class Asset(Base):
     cost: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     notify_days_before: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    # Optional external link to a contract / datasheet / order in SharePoint,
+    # Confluence, Drive, etc. Stored verbatim; surfaced as a clickable link
+    # on the asset detail and form pages.
+    document_url: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
 
     # SSL-specific
     ssl_domain: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)

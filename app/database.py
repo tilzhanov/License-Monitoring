@@ -26,6 +26,35 @@ class Base(DeclarativeBase):
 def create_db_tables():
     Base.metadata.create_all(engine)
     _migrate_licenses_to_assets()
+    _add_missing_columns()
+
+
+def _add_missing_columns() -> None:
+    """Idempotent ALTER TABLE migrations for columns added after v1.1 schema.
+
+    SQLAlchemy's create_all() never modifies an existing table — it can add new
+    tables but not new columns. This helper inspects the live schema and adds
+    any columns the model declares but the database is missing. Safe to call
+    on every startup.
+    """
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(engine)
+    if "assets" not in inspector.get_table_names():
+        return
+
+    existing = {col["name"] for col in inspector.get_columns("assets")}
+
+    pending: list[tuple[str, str]] = []
+    if "document_url" not in existing:
+        pending.append(("document_url", "VARCHAR(1000)"))
+
+    if not pending:
+        return
+
+    with engine.begin() as conn:
+        for name, ddl in pending:
+            conn.execute(text(f"ALTER TABLE assets ADD COLUMN {name} {ddl}"))
 
 
 def _migrate_licenses_to_assets() -> None:

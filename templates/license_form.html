@@ -73,6 +73,21 @@
       </div>
 
       <div class="form-group">
+        <label for="document_url">Ссылка на документ</label>
+        <input type="url" id="document_url" name="document_url"
+               placeholder="https://sharepoint.example.com/contracts/…"
+               value="{{ form_data.get('document_url', '') if form_data else (license.document_url if license and license.document_url else '') }}"
+               class="{{ 'input-error' if errors.get('document_url') else '' }}">
+        {% if errors.get('document_url') %}
+        <span class="field-error">
+          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+          {{ errors['document_url'] }}
+        </span>
+        {% endif %}
+        <span class="field-hint">Ссылка на договор, datasheet или внешний документ (SharePoint, Confluence, Drive)</span>
+      </div>
+
+      <div class="form-group">
         <label for="notify_days_before">Порог уведомления (дни)</label>
         <input type="number" id="notify_days_before" name="notify_days_before"
                value="{{ form_data.get('notify_days_before', '') if form_data else (license.notify_days_before if license and license.notify_days_before else '') }}"

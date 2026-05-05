@@ -21,6 +21,7 @@ def test_assets_columns(test_engine):
         "id", "product_id", "asset_type",
         "product_name", "purchase_date", "expiry_date",
         "responsible", "cost", "comment", "notify_days_before",
+        "document_url",
         "ssl_domain", "ssl_issuer",
         "support_contract_no", "support_sla",
         "created_at", "updated_at",

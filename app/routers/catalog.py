@@ -356,6 +356,7 @@ def asset_create(
     cost: str = Form(""),
     comment: str = Form(""),
     notify_days_before: str = Form(""),
+    document_url: str = Form(""),
     ssl_domain: str = Form(""),
     ssl_issuer: str = Form(""),
     support_contract_no: str = Form(""),
@@ -370,7 +371,7 @@ def asset_create(
     fields = dict(
         product_name=product_name, purchase_date=purchase_date, expiry_date=expiry_date,
         responsible=responsible, cost=cost, comment=comment,
-        notify_days_before=notify_days_before,
+        notify_days_before=notify_days_before, document_url=document_url,
         ssl_domain=ssl_domain, ssl_issuer=ssl_issuer,
         support_contract_no=support_contract_no, support_sla=support_sla,
     )
@@ -424,6 +425,7 @@ def asset_update(
     cost: str = Form(""),
     comment: str = Form(""),
     notify_days_before: str = Form(""),
+    document_url: str = Form(""),
     ssl_domain: str = Form(""),
     ssl_issuer: str = Form(""),
     support_contract_no: str = Form(""),
@@ -438,7 +440,7 @@ def asset_update(
     fields = dict(
         product_name=product_name, purchase_date=purchase_date, expiry_date=expiry_date,
         responsible=responsible, cost=cost, comment=comment,
-        notify_days_before=notify_days_before,
+        notify_days_before=notify_days_before, document_url=document_url,
         ssl_domain=ssl_domain, ssl_issuer=ssl_issuer,
         support_contract_no=support_contract_no, support_sla=support_sla,
     )
@@ -524,6 +526,11 @@ def _validate_asset_form(asset_type: str, fields: dict) -> tuple[dict, dict]:
     parsed["responsible"] = fields.get("responsible", "").strip() or None
     parsed["cost"] = fields.get("cost", "").strip() or None
     parsed["comment"] = fields.get("comment", "").strip() or None
+
+    doc_url = fields.get("document_url", "").strip()
+    if doc_url and not (doc_url.startswith("http://") or doc_url.startswith("https://")):
+        errors["document_url"] = "Ссылка должна начинаться с http:// или https://"
+    parsed["document_url"] = doc_url or None
 
     if asset_type == ASSET_TYPE_SSL:
         parsed["ssl_domain"] = fields.get("ssl_domain", "").strip() or None

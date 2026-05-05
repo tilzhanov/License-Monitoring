@@ -703,6 +703,15 @@ tr.status-expired { box-shadow: inset 3px 0 0 0 var(--status-expired-bar); }
   display: flex; gap: var(--space-3);
 }
 
+/* External document link inside detail field grid */
+.doc-link {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  color: var(--accent-600);
+  font-weight: var(--fw-medium);
+}
+.doc-link:hover { text-decoration: underline; }
+.doc-link .icon { width: 14px; height: 14px; }
+
 /* === Empty states === */
 .empty-state {
   display: flex; flex-direction: column; align-items: center;
