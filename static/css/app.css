@@ -456,7 +456,8 @@ main > h2 { margin: var(--space-7) 0 var(--space-4); }
   background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   box-shadow: var(--shadow-xs);
 }
 .license-table { width: 100%; border-collapse: collapse; }
@@ -471,6 +472,7 @@ main > h2 { margin: var(--space-7) 0 var(--space-4); }
   color: var(--text-muted);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
+  vertical-align: middle;
 }
 .license-table th[role="button"] { cursor: pointer; user-select: none; }
 .license-table th[role="button"]:hover { background: var(--surface-hover); color: var(--text-secondary); }
@@ -479,12 +481,22 @@ main > h2 { margin: var(--space-7) 0 var(--space-4); }
   color: var(--accent-600); vertical-align: middle;
 }
 .license-table td {
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-subtle);
   font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+  white-space: nowrap;
 }
+/* Long text columns wrap rather than blow out the row width */
+.license-table td.product-cell,
+.license-table td.wrap-cell {
+  white-space: normal;
+  max-width: 280px;
+  word-break: break-word;
+}
+.license-table td.product-cell { min-width: 200px; }
 .license-table tr:last-child td { border-bottom: none; }
 .license-table tbody tr { transition: background 120ms ease-out; }
 .license-table tbody tr:hover { background: var(--surface-hover); }
@@ -545,7 +557,18 @@ tr.status-expired { box-shadow: inset 3px 0 0 0 var(--status-expired-bar); }
 .btn-destructive:hover { background: var(--status-expired-bg); border-color: var(--destructive); }
 
 /* === Row action buttons === */
-.actions-cell { display: flex; gap: var(--space-1); align-items: center; justify-content: flex-end; }
+.actions-cell { display: flex; gap: var(--space-1); align-items: center; justify-content: flex-end; flex-wrap: nowrap; }
+/* Pin actions column to the right edge so buttons stay reachable when the
+   table scrolls horizontally on narrow viewports. */
+.license-table th:last-child,
+.license-table td.actions-cell {
+  position: sticky;
+  right: 0;
+  background: var(--surface-raised);
+  box-shadow: -4px 0 6px -4px rgba(0, 0, 0, 0.08);
+}
+.license-table thead th:last-child { background: var(--surface-sunken); }
+.license-table tbody tr:hover td.actions-cell { background: var(--surface-hover); }
 .action-btn, .action-link {
   display: inline-flex; align-items: center; gap: var(--space-1);
   height: 32px; padding: 0 var(--space-3);
