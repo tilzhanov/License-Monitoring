@@ -26,12 +26,24 @@ def make_enriched(
     status="warning",
     responsible="Иванов",
     expiry_offset=None,
+    asset_type="license",
+    product=None,
+    ssl_domain=None,
+    ssl_issuer=None,
+    support_contract_no=None,
+    support_sla=None,
 ):
-    """Build a minimal enriched-license dict for testing."""
+    """Build a minimal enriched-asset dict for testing."""
     lic = MagicMock()
     lic.product_name = product_name
     lic.expiry_date = date.today() + timedelta(days=expiry_offset if expiry_offset is not None else days)
     lic.responsible = responsible
+    lic.asset_type = asset_type
+    lic.product = product
+    lic.ssl_domain = ssl_domain
+    lic.ssl_issuer = ssl_issuer
+    lic.support_contract_no = support_contract_no
+    lic.support_sla = support_sla
     return {
         "license": lic,
         "days_remaining": days,
@@ -209,15 +221,17 @@ def test_format_license_line_with_responsible():
     line = format_license_line(item)
 
     # Must start with bullet character (•), NOT asterisk
-    assert line.startswith("\u2022"), f"Expected line to start with bullet •, got: {line[0]!r}"
-    # Must contain product name
-    assert "vCenter 7.0" in line
-    # Must contain date in DD.MM.YYYY format
+    assert line.startswith("\U0001f4dc"), f"Expected line to start with 📜, got: {line[:4]!r}"
+    # Bold-wrapped product name
+    assert "<b>vCenter 7.0</b>" in line
+    # 2-line block — context line indented after the title line
+    assert "\n   " in line
+    # Date in DD.MM.YYYY format
     expected_date = (date.today() + timedelta(days=5)).strftime("%d.%m.%Y")
     assert expected_date in line
-    # Must contain days count
-    assert "5" in line
-    # Must contain responsible
+    # Days remaining label
+    assert "5 дн." in line
+    # Responsible
     assert "Иванов" in line
 
 
@@ -231,11 +245,65 @@ def test_format_license_line_without_responsible():
     )
     line = format_license_line(item)
 
-    assert line.startswith("\u2022"), f"Expected bullet •, got: {line[0]!r}"
+    assert line.startswith("\U0001f4dc"), f"Expected 📜, got: {line[:4]!r}"
     assert "Veeam Backup" in line
     # Line must not end with a separator " — " (trailing separator omitted)
     assert not line.endswith(" \u2014 ")
     assert not line.endswith(" — ")
+    assert not line.endswith(" · ")
+
+
+def test_format_license_line_overdue_label():
+    """Negative days_remaining shows просрочено label."""
+    item = make_enriched(product_name="X", days=-7, status="expired", expiry_offset=-7)
+    line = format_license_line(item)
+    assert "просрочено 7 дн." in line
+
+
+def test_format_license_line_today_label():
+    """Zero days_remaining shows истекает сегодня."""
+    item = make_enriched(product_name="X", days=0, status="warning", expiry_offset=0)
+    line = format_license_line(item)
+    assert "истекает сегодня" in line
+
+
+def test_format_license_line_ssl_includes_domain_and_issuer():
+    item = make_enriched(
+        product_name="Wildcard cert",
+        days=20,
+        asset_type="ssl",
+        ssl_domain="*.example.com",
+        ssl_issuer="DigiCert",
+    )
+    line = format_license_line(item)
+    assert line.startswith("\U0001f512")
+    assert "*.example.com" in line
+    assert "DigiCert" in line
+
+
+def test_format_license_line_support_includes_contract_and_sla():
+    item = make_enriched(
+        product_name="Premier Support",
+        days=30,
+        asset_type="support",
+        support_contract_no="TT-2026-0042",
+        support_sla="24x7",
+    )
+    line = format_license_line(item)
+    assert line.startswith("\U0001f6e0")
+    assert "TT-2026-0042" in line
+    assert "SLA: 24x7" in line
+
+
+def test_format_license_line_includes_vendor_product_breadcrumb():
+    vendor = MagicMock()
+    vendor.name = "vmware"
+    product = MagicMock()
+    product.name = "vCloud Director"
+    product.vendor = vendor
+    item = make_enriched(product_name="License A", days=10, product=product)
+    line = format_license_line(item)
+    assert "vmware / vCloud Director" in line
 
 
 def test_format_digest_html_escapes_user_strings():
@@ -250,11 +318,50 @@ def test_format_digest_html_escapes_user_strings():
     result = format_digest([item])
 
     assert result is not None
-    assert "&lt;script&gt;" in result
+    # User-supplied script tag is escaped
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in result
     assert "<script>" not in result
-    # Responsible should also be escaped
-    assert "&lt;b&gt;" in result
-    assert "<b>" not in result
+    # User-supplied <b> in responsible is escaped (not interpreted as bold)
+    assert "&lt;b&gt;Admin&lt;/b&gt;" in result
+    # Intentional bold wrappers around the escaped product_name remain
+    assert "<b>&lt;script&gt;alert(1)&lt;/script&gt;</b>" in result
+
+
+def test_format_digest_header_contains_title_date_and_total():
+    """Digest opens with a bold title, today's date, and the attention count."""
+    items = [
+        make_enriched(product_name="A", days=-2, status="expired", expiry_offset=-2),
+        make_enriched(product_name="B", days=10, status="warning", expiry_offset=10),
+    ]
+    result = format_digest(items)
+    assert result is not None
+    assert "<b>\U0001f4cb License Monitor</b>" in result
+    assert date.today().strftime("%d.%m.%Y") in result
+    assert "требуют внимания: 2" in result
+
+
+def test_format_digest_section_headers_show_counts():
+    """Each urgency section header includes the item count."""
+    items = [
+        make_enriched(product_name="A", days=-3, status="expired", expiry_offset=-3),
+        make_enriched(product_name="B", days=-1, status="expired", expiry_offset=-1),
+        make_enriched(product_name="C", days=10, status="warning", expiry_offset=10),
+    ]
+    result = format_digest(items)
+    assert result is not None
+    assert "Истекло (2)" in result
+    assert "Истекает скоро (1)" in result
+
+
+def test_format_digest_orders_by_days_within_section():
+    """Most urgent items (smallest days_remaining) appear first within each section."""
+    items = [
+        make_enriched(product_name="LATE", days=20, status="warning", expiry_offset=20),
+        make_enriched(product_name="EARLY", days=2, status="warning", expiry_offset=2),
+    ]
+    result = format_digest(items)
+    assert result is not None
+    assert result.index("EARLY") < result.index("LATE")
 
 
 def test_format_license_line_date_format():
