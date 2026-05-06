@@ -100,7 +100,7 @@ def test_dashboard_empty_db(client):
     """GET / with no licenses shows empty state message."""
     response = client.get("/")
     assert response.status_code == 200
-    assert "Пока нет лицензий" in response.text
+    assert "Пока нет активов" in response.text
 
 
 def test_stats_counters(client, seeded_db):

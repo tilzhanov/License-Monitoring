@@ -211,18 +211,18 @@ def test_index_sortable_th_keyboard_and_chevrons():
     assert "&#9660;" not in full_partial
 
 
-def test_index_filter_search_icon_and_plus_button():
+def test_index_filter_search_icon_and_catalog_button():
     html = _index()
     assert 'class="filter-search"' in html
     assert 'href="#icon-search"' in html
-    assert 'href="#icon-plus"' in html
-    assert "Добавить лицензию" in html
+    assert 'href="/catalog"' in html
+    assert "Добавить через каталог" in html
 
 
 def test_index_empty_state_locked_copy():
     html = _index()
-    assert "Пока нет лицензий" in html
-    assert "Добавьте первую лицензию" in html
+    assert "Пока нет активов" in html
+    assert "Перейти в каталог" in html
 
 
 def test_partial_table_uses_status_badge_macro():

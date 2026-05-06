@@ -6,7 +6,6 @@
 {% set TYPE_LABEL = {
   'license': 'Лицензии',
   'support': 'Тех.поддержка',
-  'ssl': 'SSL сертификаты',
 } %}
 
 {% block content %}
@@ -49,10 +48,6 @@
     <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
     Тех.поддержка
   </a>
-  <a href="/catalog/products/{{ product.id }}/assets/new?type=ssl" class="btn btn-primary">
-    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
-    SSL сертификат
-  </a>
 </div>
 
 {% for type_key, items in assets_by_type.items() %}
@@ -63,12 +58,8 @@
     <thead>
       <tr>
         <th>Название</th>
-        {% if type_key == 'ssl' %}
-        <th>Домен</th>
-        <th>Issuer</th>
-        {% elif type_key == 'support' %}
+        {% if type_key == 'support' %}
         <th>№ контракта</th>
-        <th>SLA</th>
         {% endif %}
         <th>Дата истечения</th>
         <th>Осталось дней</th>
@@ -80,13 +71,9 @@
     <tbody>
       {% for item in items %}
       <tr class="{{ item.status_class }}">
-        <td class="product-cell">{{ item.license.product_name }}</td>
-        {% if type_key == 'ssl' %}
-        <td>{{ item.license.ssl_domain or '—' }}</td>
-        <td>{{ item.license.ssl_issuer or '—' }}</td>
-        {% elif type_key == 'support' %}
+        <td class="product-cell"><a href="/licenses/{{ item.license.id }}">{{ item.license.product_name }}</a></td>
+        {% if type_key == 'support' %}
         <td>{{ item.license.support_contract_no or '—' }}</td>
-        <td>{{ item.license.support_sla or '—' }}</td>
         {% endif %}
         <td>{{ item.license.expiry_date.strftime('%d.%m.%Y') }}</td>
         <td>{{ item.days_remaining }}</td>
@@ -116,7 +103,7 @@
 <div class="empty-state">
   <svg class="icon icon-large" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
   <h2>У продукта нет активов</h2>
-  <p>Добавьте лицензию, контракт техподдержки или SSL сертификат, чтобы отслеживать сроки.</p>
+  <p>Добавьте лицензию или контракт техподдержки, чтобы отслеживать сроки.</p>
 </div>
 {% endif %}
 {% endblock %}

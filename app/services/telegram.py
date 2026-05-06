@@ -13,7 +13,6 @@ import httpx
 _TYPE_EMOJI = {
     "license": "\U0001f4dc",  # 📜
     "support": "\U0001f6e0",  # 🛠
-    "ssl": "\U0001f512",      # 🔒
 }
 
 # Russian error messages for Telegram API error codes
@@ -90,20 +89,10 @@ def _context_parts(asset, asset_type: str) -> list[str]:
         elif product_name:
             parts.append(html.escape(product_name))
 
-    if asset_type == "ssl":
-        domain = getattr(asset, "ssl_domain", None)
-        issuer = getattr(asset, "ssl_issuer", None)
-        if domain:
-            parts.append(html.escape(domain))
-        if issuer:
-            parts.append(html.escape(issuer))
-    elif asset_type == "support":
+    if asset_type == "support":
         contract_no = getattr(asset, "support_contract_no", None)
-        sla = getattr(asset, "support_sla", None)
         if contract_no:
             parts.append(html.escape(contract_no))
-        if sla:
-            parts.append(f"SLA: {html.escape(sla)}")
 
     return parts
 
@@ -116,9 +105,9 @@ def format_license_line(enriched_item: dict) -> str:
            {context} · {date} · {days_label}[ · {responsible}]
 
     Where {context} is a `vendor / product` breadcrumb plus any type-specific
-    fields (SSL domain/issuer, support contract no/SLA). When asset_type is a
-    plain MagicMock or otherwise unknown the emoji falls back to •, which keeps
-    legacy callers' output recognizable.
+    fields (support contract no). When asset_type is a plain MagicMock or
+    otherwise unknown the emoji falls back to •, which keeps legacy callers'
+    output recognizable.
     """
     asset = enriched_item["license"]
     days = enriched_item["days_remaining"]

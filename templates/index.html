@@ -7,7 +7,7 @@
 <div class="page-header">
   <div>
     <h1>Мониторинг активов</h1>
-    <p>Лицензии, контракты тех.поддержки и SSL сертификаты — общий обзор и статусы по вендорам.</p>
+    <p>Лицензии и контракты тех.поддержки — общий обзор и статусы по вендорам.</p>
   </div>
 </div>
 
@@ -101,24 +101,33 @@
            hx-get="/licenses/table"
            hx-trigger="keyup changed delay:300ms"
            hx-target="#license-tbody"
-           hx-include="[name='status'],[name='sort'],[name='order']"
+           hx-include="[name='status'],[name='asset_type'],[name='sort'],[name='order']"
            placeholder="Поиск по продукту…">
   </div>
   <select name="status"
           hx-get="/licenses/table"
           hx-trigger="change"
           hx-target="#license-tbody"
-          hx-include="[name='product'],[name='sort'],[name='order']">
+          hx-include="[name='product'],[name='asset_type'],[name='sort'],[name='order']">
     <option value="">Все статусы</option>
     <option value="active">Активна</option>
     <option value="warning">Скоро истекает</option>
     <option value="expired">Истекла</option>
   </select>
+  <select name="asset_type"
+          hx-get="/licenses/table"
+          hx-trigger="change"
+          hx-target="#license-tbody"
+          hx-include="[name='product'],[name='status'],[name='sort'],[name='order']">
+    <option value="" {% if not current_asset_type %}selected{% endif %}>Все категории</option>
+    <option value="license" {% if current_asset_type == 'license' %}selected{% endif %}>Лицензия</option>
+    <option value="support" {% if current_asset_type == 'support' %}selected{% endif %}>Тех.поддержка</option>
+  </select>
   <input type="hidden" name="sort" value="{{ current_sort }}">
   <input type="hidden" name="order" value="{{ current_order }}">
-  <a href="/licenses/new" class="btn btn-primary">
-    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
-    Добавить лицензию
+  <a href="/catalog" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg>
+    Добавить через каталог
   </a>
 </div>
 
@@ -126,11 +135,11 @@
 {% else %}
 <div class="empty-state">
   <svg class="icon icon-large" aria-hidden="true"><use href="#icon-layout-dashboard"/></svg>
-  <h2>Пока нет лицензий</h2>
-  <p>Добавьте первую лицензию, чтобы начать отслеживать сроки их действия.</p>
-  <a href="/licenses/new" class="btn btn-primary">
-    <svg class="icon" aria-hidden="true"><use href="#icon-plus"/></svg>
-    Добавить лицензию
+  <h2>Пока нет активов</h2>
+  <p>Создайте вендора и продукт в каталоге, затем добавьте к нему лицензию или тех.поддержку.</p>
+  <a href="/catalog" class="btn btn-primary">
+    <svg class="icon" aria-hidden="true"><use href="#icon-folder"/></svg>
+    Перейти в каталог
   </a>
 </div>
 {% endif %}

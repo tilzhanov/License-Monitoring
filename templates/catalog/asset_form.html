@@ -5,7 +5,6 @@
 {% set TYPE_LABEL = {
   'license': 'Лицензия',
   'support': 'Тех.поддержка',
-  'ssl': 'SSL сертификат',
 } %}
 
 {% macro field_value(form_data, asset, key, attr=None) -%}
@@ -34,7 +33,7 @@
       <div class="form-group required">
         <label for="product_name">Название</label>
         <input type="text" id="product_name" name="product_name" autofocus required
-               placeholder="{% if asset_type == 'ssl' %}Например: Wildcard *.example.com{% elif asset_type == 'support' %}Например: Premier Support 2026{% else %}Например: vCenter 7.0{% endif %}"
+               placeholder="{% if asset_type == 'support' %}Например: Premier Support 2026{% else %}Например: vCenter 7.0{% endif %}"
                value="{{ form_data.get('product_name', asset.product_name if asset else '') }}"
                class="{{ 'input-error' if errors.get('product_name') else '' }}">
         {% if errors.get('product_name') %}
@@ -45,40 +44,12 @@
         {% endif %}
       </div>
 
-      {% if asset_type == 'ssl' %}
-      <div class="form-group required">
-        <label for="ssl_domain">Домен</label>
-        <input type="text" id="ssl_domain" name="ssl_domain"
-               placeholder="example.com или *.example.com"
-               value="{{ form_data.get('ssl_domain', asset.ssl_domain if asset and asset.ssl_domain else '') }}"
-               class="{{ 'input-error' if errors.get('ssl_domain') else '' }}">
-        {% if errors.get('ssl_domain') %}
-        <span class="field-error">
-          <svg class="icon" aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
-          {{ errors['ssl_domain'] }}
-        </span>
-        {% endif %}
-      </div>
-      <div class="form-group">
-        <label for="ssl_issuer">Издатель (CA)</label>
-        <input type="text" id="ssl_issuer" name="ssl_issuer"
-               placeholder="Например: Let's Encrypt, Sectigo"
-               value="{{ form_data.get('ssl_issuer', asset.ssl_issuer if asset and asset.ssl_issuer else '') }}">
-      </div>
-      {% endif %}
-
       {% if asset_type == 'support' %}
       <div class="form-group">
         <label for="support_contract_no">Номер контракта</label>
         <input type="text" id="support_contract_no" name="support_contract_no"
                placeholder="Например: TT-2026-0042"
                value="{{ form_data.get('support_contract_no', asset.support_contract_no if asset and asset.support_contract_no else '') }}">
-      </div>
-      <div class="form-group">
-        <label for="support_sla">SLA</label>
-        <input type="text" id="support_sla" name="support_sla"
-               placeholder="Например: 24x7, 8x5, Premier"
-               value="{{ form_data.get('support_sla', asset.support_sla if asset and asset.support_sla else '') }}">
       </div>
       {% endif %}
 

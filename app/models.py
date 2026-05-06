@@ -10,8 +10,7 @@ from app.database import Base
 # Asset types — keep as plain strings (SQLite-friendly, no enum migration pain).
 ASSET_TYPE_LICENSE = "license"
 ASSET_TYPE_SUPPORT = "support"
-ASSET_TYPE_SSL = "ssl"
-ASSET_TYPES = (ASSET_TYPE_LICENSE, ASSET_TYPE_SUPPORT, ASSET_TYPE_SSL)
+ASSET_TYPES = (ASSET_TYPE_LICENSE, ASSET_TYPE_SUPPORT)
 
 
 class Vendor(Base):
@@ -42,10 +41,10 @@ class Product(Base):
 
 
 class Asset(Base):
-    """Polymorphic asset — license, support contract, or SSL certificate.
+    """Polymorphic asset — license or support contract.
 
     Common fields cover all types. Type-specific fields stored in named columns
-    (kept nullable so a single table fits all three asset types).
+    (kept nullable so a single table fits both asset types).
     """
     __tablename__ = "assets"
 
@@ -55,8 +54,7 @@ class Asset(Base):
     )
     asset_type: Mapped[str] = mapped_column(String(20), nullable=False, default=ASSET_TYPE_LICENSE, index=True)
     # Display name. Called `product_name` for backwards compatibility with the
-    # original License schema and templates; for SSL assets this is the cert
-    # name, for Support it's the contract title.
+    # original License schema and templates; for Support it's the contract title.
     product_name: Mapped[str] = mapped_column(String(255), nullable=False)
     purchase_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     expiry_date: Mapped[date] = mapped_column(Date, nullable=False)
@@ -69,13 +67,8 @@ class Asset(Base):
     # on the asset detail and form pages.
     document_url: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
 
-    # SSL-specific
-    ssl_domain: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    ssl_issuer: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-
     # Support-specific
     support_contract_no: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    support_sla: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
     created_at: Mapped[date] = mapped_column(Date, default=date.today)
     updated_at: Mapped[date] = mapped_column(Date, default=date.today, onupdate=date.today)

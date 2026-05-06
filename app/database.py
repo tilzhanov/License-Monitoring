@@ -27,6 +27,23 @@ def create_db_tables():
     Base.metadata.create_all(engine)
     _migrate_licenses_to_assets()
     _add_missing_columns()
+    _purge_ssl_assets()
+
+
+def _purge_ssl_assets() -> None:
+    """Remove legacy SSL assets after the SSL feature was dropped.
+
+    The `ssl_domain` / `ssl_issuer` columns may linger in the DB schema (SQLite
+    DROP COLUMN is intentionally not attempted to keep old installs portable);
+    they are simply unmapped on the ORM side.
+    """
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(engine)
+    if "assets" not in inspector.get_table_names():
+        return
+    with engine.begin() as conn:
+        conn.execute(text("DELETE FROM assets WHERE asset_type = 'ssl'"))
 
 
 def _add_missing_columns() -> None:

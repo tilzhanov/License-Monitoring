@@ -28,10 +28,7 @@ def make_enriched(
     expiry_offset=None,
     asset_type="license",
     product=None,
-    ssl_domain=None,
-    ssl_issuer=None,
     support_contract_no=None,
-    support_sla=None,
 ):
     """Build a minimal enriched-asset dict for testing."""
     lic = MagicMock()
@@ -40,10 +37,7 @@ def make_enriched(
     lic.responsible = responsible
     lic.asset_type = asset_type
     lic.product = product
-    lic.ssl_domain = ssl_domain
-    lic.ssl_issuer = ssl_issuer
     lic.support_contract_no = support_contract_no
-    lic.support_sla = support_sla
     return {
         "license": lic,
         "days_remaining": days,
@@ -267,32 +261,16 @@ def test_format_license_line_today_label():
     assert "истекает сегодня" in line
 
 
-def test_format_license_line_ssl_includes_domain_and_issuer():
-    item = make_enriched(
-        product_name="Wildcard cert",
-        days=20,
-        asset_type="ssl",
-        ssl_domain="*.example.com",
-        ssl_issuer="DigiCert",
-    )
-    line = format_license_line(item)
-    assert line.startswith("\U0001f512")
-    assert "*.example.com" in line
-    assert "DigiCert" in line
-
-
-def test_format_license_line_support_includes_contract_and_sla():
+def test_format_license_line_support_includes_contract_no():
     item = make_enriched(
         product_name="Premier Support",
         days=30,
         asset_type="support",
         support_contract_no="TT-2026-0042",
-        support_sla="24x7",
     )
     line = format_license_line(item)
     assert line.startswith("\U0001f6e0")
     assert "TT-2026-0042" in line
-    assert "SLA: 24x7" in line
 
 
 def test_format_license_line_includes_vendor_product_breadcrumb():

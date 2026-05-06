@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from app.database import SessionDep
-from app.models import Asset, License, Vendor
+from app.models import ASSET_TYPES, Asset, License, Vendor
 from app.services.status import enrich_licenses, get_global_threshold
 from app.templates import templates
 
@@ -66,6 +66,7 @@ def index(request: Request, db: SessionDep):
             "licenses": sorted_licenses,
             "current_sort": "expiry_date",
             "current_order": "asc",
+            "current_asset_type": "",
             "vendor_rows": vendor_rows,
             "orphan_count": orphan_count,
         },
@@ -78,6 +79,7 @@ def _query_and_sort(
     status: Optional[str],
     sort: str,
     order: str,
+    asset_type: Optional[str] = None,
 ) -> list:
     """Shared filter+sort pipeline for license table partials."""
     global_threshold = get_global_threshold(db)
@@ -85,6 +87,9 @@ def _query_and_sort(
 
     if product:
         query = query.filter(License.product_name.ilike(f"%{product}%"))
+
+    if asset_type and asset_type in ASSET_TYPES:
+        query = query.filter(License.asset_type == asset_type)
 
     licenses = query.all()
     enriched = enrich_licenses(licenses, global_threshold)
@@ -107,11 +112,12 @@ def license_table(
     db: SessionDep,
     product: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
+    asset_type: Optional[str] = Query(None),
     sort: str = Query("expiry_date"),
     order: str = Query("asc"),
 ):
     """HTMX partial: filtered/sorted tbody rows. Used by filter inputs."""
-    enriched = _query_and_sort(db, product, status, sort, order)
+    enriched = _query_and_sort(db, product, status, sort, order, asset_type)
     return templates.TemplateResponse(
         request=request,
         name="partials/license_table.html",
@@ -119,6 +125,7 @@ def license_table(
             "licenses": enriched,
             "current_sort": sort,
             "current_order": order,
+            "current_asset_type": asset_type or "",
         },
     )
 
@@ -129,12 +136,13 @@ def license_table_full(
     db: SessionDep,
     product: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
+    asset_type: Optional[str] = Query(None),
     sort: str = Query("expiry_date"),
     order: str = Query("asc"),
 ):
     """HTMX partial: full table (thead + tbody). Used by sort-header clicks
     so chevron indicators and toggle URLs re-render with new state."""
-    enriched = _query_and_sort(db, product, status, sort, order)
+    enriched = _query_and_sort(db, product, status, sort, order, asset_type)
     return templates.TemplateResponse(
         request=request,
         name="partials/license_table_full.html",
@@ -142,5 +150,6 @@ def license_table_full(
             "licenses": enriched,
             "current_sort": sort,
             "current_order": order,
+            "current_asset_type": asset_type or "",
         },
     )

@@ -9,7 +9,7 @@
             hx-get="/licenses/table/full?sort=product_name&order={% if current_sort == 'product_name' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
             hx-target="#license-table-wrap"
             hx-swap="outerHTML"
-            hx-include="[name='product'],[name='status']">
+            hx-include="[name='product'],[name='status'],[name='asset_type']">
           Продукт
           {% if current_sort == 'product_name' %}
             {% if current_order == 'asc' %}
@@ -23,7 +23,7 @@
             hx-get="/licenses/table/full?sort=expiry_date&order={% if current_sort == 'expiry_date' and current_order == 'asc' %}desc{% else %}asc{% endif %}"
             hx-target="#license-table-wrap"
             hx-swap="outerHTML"
-            hx-include="[name='product'],[name='status']">
+            hx-include="[name='product'],[name='status'],[name='asset_type']">
           Дата истечения
           {% if current_sort == 'expiry_date' %}
             {% if current_order == 'asc' %}

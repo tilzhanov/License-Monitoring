@@ -1,7 +1,7 @@
 """Catalog routes — Vendor / Product CRUD and listing.
 
 Asset CRUD lives in app/routers/licenses.py (legacy /licenses paths) and the
-extended asset forms (SSL, support) attach to product detail pages here.
+extended asset forms (support) attach to product detail pages here.
 """
 from datetime import date
 from typing import Optional
@@ -12,7 +12,7 @@ from sqlalchemy import func
 
 from app.database import SessionDep
 from app.models import (
-    ASSET_TYPE_LICENSE, ASSET_TYPE_SSL, ASSET_TYPE_SUPPORT, ASSET_TYPES,
+    ASSET_TYPE_LICENSE, ASSET_TYPE_SUPPORT, ASSET_TYPES,
     Asset, Product, Vendor,
 )
 from app.services.status import enrich_licenses, get_global_threshold
@@ -357,10 +357,7 @@ def asset_create(
     comment: str = Form(""),
     notify_days_before: str = Form(""),
     document_url: str = Form(""),
-    ssl_domain: str = Form(""),
-    ssl_issuer: str = Form(""),
     support_contract_no: str = Form(""),
-    support_sla: str = Form(""),
 ):
     p = db.get(Product, product_id)
     if not p:
@@ -372,8 +369,7 @@ def asset_create(
         product_name=product_name, purchase_date=purchase_date, expiry_date=expiry_date,
         responsible=responsible, cost=cost, comment=comment,
         notify_days_before=notify_days_before, document_url=document_url,
-        ssl_domain=ssl_domain, ssl_issuer=ssl_issuer,
-        support_contract_no=support_contract_no, support_sla=support_sla,
+        support_contract_no=support_contract_no,
     )
     errors, parsed = _validate_asset_form(asset_type, fields)
     if errors:
@@ -426,10 +422,7 @@ def asset_update(
     comment: str = Form(""),
     notify_days_before: str = Form(""),
     document_url: str = Form(""),
-    ssl_domain: str = Form(""),
-    ssl_issuer: str = Form(""),
     support_contract_no: str = Form(""),
-    support_sla: str = Form(""),
 ):
     a = db.get(Asset, asset_id)
     if not a:
@@ -441,8 +434,7 @@ def asset_update(
         product_name=product_name, purchase_date=purchase_date, expiry_date=expiry_date,
         responsible=responsible, cost=cost, comment=comment,
         notify_days_before=notify_days_before, document_url=document_url,
-        ssl_domain=ssl_domain, ssl_issuer=ssl_issuer,
-        support_contract_no=support_contract_no, support_sla=support_sla,
+        support_contract_no=support_contract_no,
     )
     errors, parsed = _validate_asset_form(asset_type, fields)
     if errors:
@@ -532,22 +524,9 @@ def _validate_asset_form(asset_type: str, fields: dict) -> tuple[dict, dict]:
         errors["document_url"] = "Ссылка должна начинаться с http:// или https://"
     parsed["document_url"] = doc_url or None
 
-    if asset_type == ASSET_TYPE_SSL:
-        parsed["ssl_domain"] = fields.get("ssl_domain", "").strip() or None
-        parsed["ssl_issuer"] = fields.get("ssl_issuer", "").strip() or None
-        parsed["support_contract_no"] = None
-        parsed["support_sla"] = None
-        if not parsed["ssl_domain"]:
-            errors["ssl_domain"] = "Укажите домен"
-    elif asset_type == ASSET_TYPE_SUPPORT:
+    if asset_type == ASSET_TYPE_SUPPORT:
         parsed["support_contract_no"] = fields.get("support_contract_no", "").strip() or None
-        parsed["support_sla"] = fields.get("support_sla", "").strip() or None
-        parsed["ssl_domain"] = None
-        parsed["ssl_issuer"] = None
     else:
-        parsed["ssl_domain"] = None
-        parsed["ssl_issuer"] = None
         parsed["support_contract_no"] = None
-        parsed["support_sla"] = None
 
     return errors, parsed

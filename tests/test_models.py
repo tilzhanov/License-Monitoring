@@ -14,7 +14,7 @@ def test_assets_table_exists(test_engine):
 
 
 def test_assets_columns(test_engine):
-    """assets table contains common + SSL/support type-specific columns."""
+    """assets table contains common + support type-specific columns."""
     inspector = inspect(test_engine)
     columns = {col["name"] for col in inspector.get_columns("assets")}
     expected = {
@@ -22,8 +22,7 @@ def test_assets_columns(test_engine):
         "product_name", "purchase_date", "expiry_date",
         "responsible", "cost", "comment", "notify_days_before",
         "document_url",
-        "ssl_domain", "ssl_issuer",
-        "support_contract_no", "support_sla",
+        "support_contract_no",
         "created_at", "updated_at",
     }
     assert expected == columns
@@ -39,7 +38,7 @@ def test_assets_not_null_columns(test_engine):
 
 
 def test_assets_nullable_columns(test_engine):
-    """purchase_date is now nullable (SSL has no purchase concept)."""
+    """purchase_date is now nullable."""
     inspector = inspect(test_engine)
     columns = {col["name"]: col["nullable"] for col in inspector.get_columns("assets")}
     assert columns["purchase_date"] is True
