@@ -29,7 +29,7 @@
       <div class="form-group">
         <label for="purchase_date">Дата покупки</label>
         <input type="date" id="purchase_date" name="purchase_date"
-               value="{{ form_data.get('purchase_date', '') if form_data else (license.purchase_date.isoformat() if license else '') }}"
+               value="{{ form_data.get('purchase_date', '') if form_data else (license.purchase_date.isoformat() if license and license.purchase_date else '') }}"
                class="{{ 'input-error' if errors.get('purchase_date') else '' }}">
         {% if errors.get('purchase_date') %}
         <span class="field-error">

@@ -215,6 +215,40 @@ def test_detail_nonexistent(client):
     assert "Лицензия не найдена" in resp.text
 
 
+def test_detail_without_purchase_date(client):
+    """Assets created via the catalog have no purchase_date — must not 500."""
+    with Session(test_engine) as session:
+        lic = License(
+            product_name="NetApp FAS8200 support",
+            purchase_date=None,
+            expiry_date=date.today() + timedelta(days=30),
+        )
+        session.add(lic)
+        session.commit()
+        lic_id = lic.id
+
+    resp = client.get(f"/licenses/{lic_id}")
+    assert resp.status_code == 200
+    assert "NetApp FAS8200 support" in resp.text
+
+
+def test_edit_page_without_purchase_date(client):
+    """Edit form must render for assets with a NULL purchase_date."""
+    with Session(test_engine) as session:
+        lic = License(
+            product_name="Dell EMC PowerEdge R640",
+            purchase_date=None,
+            expiry_date=date.today() + timedelta(days=30),
+        )
+        session.add(lic)
+        session.commit()
+        lic_id = lic.id
+
+    resp = client.get(f"/licenses/{lic_id}/edit")
+    assert resp.status_code == 200
+    assert 'name="purchase_date"' in resp.text
+
+
 # --- Per-license threshold (LIC-06) ---
 
 

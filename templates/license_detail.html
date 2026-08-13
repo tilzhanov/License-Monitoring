@@ -32,7 +32,7 @@
       </span>
 
       <span class="detail-label">Дата покупки</span>
-      <span class="detail-value">{{ license.purchase_date.strftime('%d.%m.%Y') }}</span>
+      <span class="detail-value">{{ license.purchase_date.strftime('%d.%m.%Y') if license.purchase_date else '—' }}</span>
 
       <span class="detail-label">Ответственный</span>
       <span class="detail-value">{{ license.responsible or '—' }}</span>
