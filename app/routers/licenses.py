@@ -27,13 +27,13 @@ def _validate_license_form(
     if not product_name.strip():
         errors["product_name"] = "Укажите название продукта"
 
-    if not purchase_date_str.strip():
-        errors["purchase_date"] = "Укажите дату покупки"
-    else:
+    # Optional, matching the nullable column and the catalog form: assets
+    # created through the catalog routinely carry no purchase date.
+    if purchase_date_str.strip():
         try:
             parsed_purchase = date.fromisoformat(purchase_date_str)
         except ValueError:
-            errors["purchase_date"] = "Укажите дату покупки"
+            errors["purchase_date"] = "Неверный формат даты"
 
     if not expiry_date_str.strip():
         errors["expiry_date"] = "Укажите дату истечения"

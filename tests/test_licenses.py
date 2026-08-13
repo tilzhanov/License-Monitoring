@@ -118,15 +118,38 @@ def test_create_license_validation_missing_product(client):
     assert "Укажите название продукта" in resp.text
 
 
-def test_create_license_validation_missing_dates(client):
+def test_create_license_validation_missing_expiry(client):
     resp = client.post("/licenses", data={
         "product_name": "Test",
         "purchase_date": "",
         "expiry_date": "",
     })
     assert resp.status_code == 200
-    assert "Укажите дату покупки" in resp.text
     assert "Укажите дату истечения" in resp.text
+
+
+def test_create_license_without_purchase_date(client):
+    """purchase_date is optional here, as it is in the catalog form."""
+    resp = client.post("/licenses", data={
+        "product_name": "Support contract",
+        "purchase_date": "",
+        "expiry_date": "2026-12-31",
+    }, follow_redirects=False)
+    assert resp.status_code in (302, 303)
+
+    with Session(test_engine) as session:
+        lic = session.query(License).filter_by(product_name="Support contract").one()
+        assert lic.purchase_date is None
+
+
+def test_create_license_malformed_purchase_date(client):
+    resp = client.post("/licenses", data={
+        "product_name": "Test",
+        "purchase_date": "31-12-2026",
+        "expiry_date": "2026-12-31",
+    })
+    assert resp.status_code == 200
+    assert "Неверный формат даты" in resp.text
 
 
 def test_create_license_validation_expiry_before_purchase(client):
