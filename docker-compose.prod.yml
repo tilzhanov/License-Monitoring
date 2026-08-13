@@ -1,0 +1,22 @@
+# Production overlay: attaches the app to the nginx-proxy network that fronts
+# every service on the deployment host.
+#
+# Not named docker-compose.override.yml on purpose — Compose loads an override
+# file automatically, and proxy-network is external, so a local `docker compose
+# up` would fail on a network that only exists on the server.
+#
+# The server selects this overlay through COMPOSE_FILE in its own .env, so the
+# deploy command stays a plain `docker compose up -d`. See .env.example.
+
+services:
+  web:
+    networks:
+      - default
+      - proxy-network
+
+networks:
+  default:
+    driver: bridge
+  proxy-network:
+    external: true
+    name: proxy-network
